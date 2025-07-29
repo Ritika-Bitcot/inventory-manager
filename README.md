@@ -88,25 +88,17 @@ Each file follows SRP by **doing only one thing** and doing it well — improvin
 
 1. **Clone the Repository**
 
-```bash
+```
 git clone https://github.com/your-username/inventory-manager.git
 cd inventory-manager
+```
 
-
-Create & Activate Virtual Environment
+### Create & Activate Virtual Environment
 
 ```
 python3 -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
-```
-
-Install Dependencies (if any)
-
-Currently, no external libraries are required.
-
-```
-pip install -r requirements.txt
 ```
 
 ## Run Any Python File
