@@ -24,6 +24,10 @@ def calculate_area(shape: str, value: float) -> float | None:
         return None
 
 def print_area(area):
+    """
+    Print the calculated area.
+    """
+    
     print(f"The area is {area}")
 
 area = calculate_area("circle", 5)
