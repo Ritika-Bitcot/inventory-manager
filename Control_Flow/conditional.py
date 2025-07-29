@@ -1,6 +1,10 @@
 # Program to check grade based on marks
 
 def check_grade(marks:int)->str:
+    """
+    Determine the grade for a student based on their marks.
+    """
+
     if marks >= 90:
         return "Grade: A"
     elif marks >= 75:
