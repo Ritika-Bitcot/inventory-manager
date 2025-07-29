@@ -1,7 +1,7 @@
 """
 Violation of SRP:
 
-def calculate_area_and_print(shape, value):
+def calculate_area_and_print(shape: str, value: float)->None:
     if shape == "circle":
         area = 3.14 * value ** 2
     elif shape == "square":
@@ -9,9 +9,13 @@ def calculate_area_and_print(shape, value):
     print(f"The area is {area}")
 
 Problem: This function calculates and prints. It is doing two things.
-
 """
-def calculate_area(shape, value):
+
+def calculate_area(shape: str, value: float) -> float | None:
+    """
+    Calculate the area of a given shape.
+    """
+
     if shape == "circle":
         return 3.14 * value ** 2
     elif shape == "square":
