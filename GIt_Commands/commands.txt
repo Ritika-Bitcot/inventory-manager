@@ -1,0 +1,52 @@
+1. Clone a Repository
+
+git clone <repository_url>
+# Example:
+git clone https://github.com/user/repo.git
+
+2. Add Changes
+
+git add <filename>       # Add single file
+git add .                # Add all changes
+
+
+3. Commit Changes
+git commit -m "Your commit message"
+
+4. Push to Remote
+
+git push origin main     # Push local changes to main branch
+
+5. Pull from Remote
+
+git pull origin main     # Fetch and merge from remote
+
+6. Fetch (without merge)
+
+git fetch origin         # Fetch updates only
+git merge origin/main    # Then merge manually if needed
+
+7. Checkout Branch
+
+git checkout main          # Switch to main
+git checkout -b feature-x  # Create and switch to new branch
+8. Stash Uncommitted Work
+
+git stash             # Stash current changes
+git stash list        # View stash list
+git stash apply       # Reapply last stash
+
+.gitignore (Sample)
+Create a .gitignore file in your repo root to ignore unwanted files:
+
+# Python
+__pycache__/
+*.pyc
+
+# Environments
+.env
+venv/
+
+# Logs and temp files
+*.log
+*.tmp
