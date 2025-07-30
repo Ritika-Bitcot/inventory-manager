@@ -157,7 +157,7 @@ source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 ```
 
-## Run Any Python File
+## Run Any Python File.
 ```
 python3 Control_Flow/conditional.py
 ```
