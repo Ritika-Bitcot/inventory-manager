@@ -23,6 +23,13 @@ It includes categorized examples on control flow, data types, exception handling
 │ │ ├── conditional.py
 │ │ └── loops.py
 │ │
+| |── csv_modules/
+│ │ ├── contacts.csv
+│ │ ├── people.csv
+│ │ ├── program1.py
+│ │ ├── program2.py
+│ │ └── tuple/
+| |
 │ ├── Datatypes/
 │ │ ├── dictionary/
 │ │ ├── list/
@@ -32,6 +39,8 @@ It includes categorized examples on control flow, data types, exception handling
 │ │
 │ ├── exception_handling/
 │ │ └── data_processing.py
+| | └── data_processing_using_pydantic.py
+| | └── data.csv
 │ │
 │ ├── file_handling/
 │ │ ├── binaryfile_program.py
@@ -67,6 +76,7 @@ It includes categorized examples on control flow, data types, exception handling
 │ ├── README.md
 │ ├── .gitignore
 │ └── venv/
+│ └── requirements.txt
 
 ```
 
