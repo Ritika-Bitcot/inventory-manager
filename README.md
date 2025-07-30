@@ -32,10 +32,23 @@ It includes categorized examples on control flow, data types, exception handling
 | |
 │ ├── Datatypes/
 │ │ ├── dictionary/
+│ │ | | ├── basics.py
+| | │ │ ├── methods.py
+| | │ │ ├── programs.py
 │ │ ├── list/
+│ │ | | ├── basics.py
+| | │ │ ├── methods.py
+| | │ │ ├── programs.py
 │ │ ├── set/
+│ │ | | ├── basics.py
+| | │ │ ├── programs.py
 │ │ ├── strings/
+│ │ | | ├── basics.py
+| | │ │ ├── methods.py
+| | │ │ ├── programs.py
 │ │ └── tuple/
+│ │ | | ├── basics.py
+| | │ │ ├── programs.py
 │ │
 │ ├── exception_handling/
 │ │ └── data_processing.py
