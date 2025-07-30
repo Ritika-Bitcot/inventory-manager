@@ -68,46 +68,6 @@ It includes categorized examples on control flow, data types, exception handling
 │ ├── .gitignore
 │ └── venv/
 
-inventory-manager/
-├── Control_Flow/ # Conditional logic and loop examples
-│ ├── conditional.py
-│ └── loops.py
-│
-├── Datatypes/ # Built-in data types and operations
-│ ├── list/
-│ ├── set/
-│ ├── tuple/
-│ ├── dictionary/
-│ └── strings/
-│
-├── SRP_Solid_Principle/ # Real-world use cases of SRP (Single Responsibility Principle)
-│ ├── calc_area.py
-│ ├── even.py
-│ ├── place_order.py
-│ ├── student_score.py
-│ └── user_authentication.py
-│
-├── file_handling/ # Read/write examples for text and binary files
-│ ├── binaryfile_program.py
-│ ├── txtfile_program.py
-│ ├── binaryfile.bin
-│ └── test_textfile.txt
-│
-├── exception_handling/ # Error handling patterns and examples
-│
-├── primitive_data_type/ # Examples of fundamental Python types
-│
-├── GIt_Commands/ # Useful Git commands (commands.txt)
-│
-├── data_processing.py # Small data transformation example
-├── data.csv # Sample CSV for practice
-├── equality_and_identity.py # Comparison using == vs is
-├── list_comprehension/ # Examples of list comprehension
-├── hello.py # First Python test script
-├── zen.py # The Zen of Python (PEP 20)
-├── readme.md # Project documentation (this file)
-├── .gitignore # Git ignore rules
-└── venv/ # Python virtual environment (excluded from Git)
 ```
 
 ---
