@@ -18,6 +18,56 @@ It includes categorized examples on control flow, data types, exception handling
 ## 📁 Folder Structure
 
 ```
+├── inventory-manager/
+│ ├── Control_Flow/
+│ │ ├── conditional.py
+│ │ └── loops.py
+│ │
+│ ├── Datatypes/
+│ │ ├── dictionary/
+│ │ ├── list/
+│ │ ├── set/
+│ │ ├── strings/
+│ │ └── tuple/
+│ │
+│ ├── exception_handling/
+│ │ └── data_processing.py
+│ │
+│ ├── file_handling/
+│ │ ├── binaryfile_program.py
+│ │ ├── binaryfile.bin
+│ │ ├── test_textfile.txt
+│ │ └── txtfile_program.py
+│ │
+│ ├── GIt_Commands/
+│ │ └── commands.txt
+│ │
+│ ├── primitive_data_type/
+│ │ ├── operators_and_fstring.py
+│ │ └── variable_and_assignment.py
+│ │
+│ ├── process_data_inventory/
+│ │ ├── inventory.csv
+│ │ ├── low_stock_report.txt
+│ │ ├── process_inventory.py
+│ │ └── errors.log
+│ │
+│ ├── SRP_Solid_Principle/
+│ │ ├── calc_area.py
+│ │ ├── even.py
+│ │ ├── log.txt
+│ │ ├── place_order.py
+│ │ ├── student_score.py
+│ │ └── user_authentication.py
+│ │
+│ ├── list_comprehension.py
+│ ├── equality_and_identity.py
+│ ├── hello.py
+│ ├── zen.py
+│ ├── README.md
+│ ├── .gitignore
+│ └── venv/
+
 inventory-manager/
 ├── Control_Flow/ # Conditional logic and loop examples
 │ ├── conditional.py
@@ -60,20 +110,26 @@ inventory-manager/
 └── venv/ # Python virtual environment (excluded from Git)
 ```
 
-
 ---
 
-## 🔎 Highlights of SRP Implementations
+## 🔍 Notable Module Highlights
 
+### 📦 `process_data_inventory/`
+- Validates and processes inventory data from CSV files.
+- Uses `pydantic` for model validation and `try-except` for graceful error handling.
+- Outputs include:
+  - `low_stock_report.txt` — lists low-stock items.
+  - `errors.log` — logs rows that failed validation.
+
+### 🧱 `SRP_Solid_Principle/`
+Practical implementations of the **Single Responsibility Principle**:
 | File                  | Responsibility Description                            |
 |-----------------------|--------------------------------------------------------|
 | `calc_area.py`        | Calculates area of different shapes                    |
-| `place_order.py`      | Places customer orders (isolated from payment logic)   |
-| `student_score.py`    | Manages student scoring and report generation          |
-| `user_authentication.py` | Handles login and user verification                  |
-| `even.py`             | Checks and prints even numbers from a list             |
-
-Each file follows SRP by **doing only one thing** and doing it well — improving modularity and maintainability.
+| `even.py`             | Prints even numbers from a list                        |
+| `place_order.py`      | Places and records customer orders                     |
+| `student_score.py`    | Computes scores and generates reports                  |
+| `user_authentication.py` | Handles user login/validation logic               |
 
 ---
 
@@ -101,7 +157,7 @@ source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 ```
 
-## Run Any Python File
+## Run Any Python File.
 ```
 python3 Control_Flow/conditional.py
 ```
