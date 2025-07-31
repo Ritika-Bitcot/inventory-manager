@@ -28,7 +28,6 @@ It includes categorized examples on control flow, data types, exception handling
 │ │ ├── people.csv
 │ │ ├── program1.py
 │ │ ├── program2.py
-│ │ └── tuple/
 | |
 │ ├── Datatypes/
 │ │ ├── dictionary/
