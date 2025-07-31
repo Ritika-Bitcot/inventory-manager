@@ -16,39 +16,57 @@ class Product(BaseModel):
     quantity:int=Field(...,ge=0)
     price:float=Field(...,gt=0)
 
-def load_and_validate_products(csv_file: str) -> List[Product]:
-    """
-    Reads a CSV file, validates the data against the Product model, and returns a list of valid products.
-    """
-    valid_products = []
+    def get_total_value(self) -> float:
+        """
+        Returns the total value of the product (price * quantity).
+        """
+        return self.price * self.quantity
 
-    with open(csv_file, newline='') as f:
-        reader = csv.DictReader(f)
-        for idx, row in enumerate(reader, start=2):  # start=2 to account for header
-            try:
-                product = Product(
-                    product_id=int(row['product_id']),
-                    product_name=row['product_name'],
-                    quantity=int(row['quantity']),
-                    price=float(row['price'])
-                )
-                valid_products.append(product)
-            except (ValidationError, ValueError) as e:
-                logging.error(f"Row {idx}: {e}")
-    
-    return valid_products
+class Inventory:
+    def __init__(self):
+        self.products:List[Product] = []
+    def load_from_csv(self,csv_file: str)->None:
+        """
+        Load and validate products from a CSV file into the inventory.
+        """
+        with open(csv_file, newline='') as f:
+            reader = csv.DictReader(f)
+            for idx, row in enumerate(reader, start=2):  # start=2 to account for header
+                try:
+                    product = Product(
+                        product_id=int(row['product_id']),
+                        product_name=row['product_name'],
+                        quantity=int(row['quantity']),
+                        price=float(row['price'])
+                    )
+                    self.products.append(product)
 
-def generate_low_stock_report(products: List[Product], threshold: int = 10, output_file: str = 'low_stock_report.txt'):
-    """
-    Generates a low stock report based on the given list of products and a threshold for quantity.
-    """
-    with open(output_file, 'w') as f:
-        for product in products:
-            if product.quantity < threshold:
-                f.write(f"{product.product_name}: {product.quantity}\n")    
+                except (ValidationError, ValueError) as e:
+                    logging.error(f"Row {idx}: {e}")
+        
+    def generate_low_stock_report(self, threshold: int = 10, output_file: str = 'low_stock_report.txt'):
+        """
+        Generate a report for products whose quantity is below the threshold.
+        """
+        with open(output_file, 'w') as f:
+            for product in self.products:
+                if product.quantity < threshold:
+                    f.write(f"{product.product_name}: {product.quantity}\n")    
+
+    def get_total_inventory_value(self) -> float:
+        """
+        Returns the total value of all products in the inventory.
+        """
+        return sum(p.get_total_value() for p in self.products)
+
 
 
 if __name__ == '__main__':
     setup_logger()  
-    products = load_and_validate_products('inventory.csv')
-    generate_low_stock_report(products)
+    inventory = Inventory()
+    inventory.load_from_csv('inventory.csv')
+
+    print(f"Total Inventory Value: ₹{inventory.get_total_inventory_value():.2f}")
+
+    inventory.generate_low_stock_report()
+

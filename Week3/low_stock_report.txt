@@ -1,3 +1,4 @@
 Pen: 5
 Marker: 8
 Sharpener: 3
+Color Paper: 5

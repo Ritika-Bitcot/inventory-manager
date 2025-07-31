@@ -6,3 +6,5 @@ product_id,product_name,quantity,price
 5,Marker,8,15.75
 6,Ruler,-2,12.00
 7,Sharpener,3,8.00
+8,Color Paper,5,12.00
+9,White Paper,12,-10.00
