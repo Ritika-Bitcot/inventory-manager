@@ -2,3 +2,6 @@ Pen: 5
 Marker: 8
 Sharpener: 3
 Color Paper: 5
+Laptop: 5
+Bread: 3
+Monitor: 2
