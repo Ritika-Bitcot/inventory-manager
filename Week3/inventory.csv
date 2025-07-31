@@ -1,0 +1,8 @@
+product_id,product_name,quantity,price
+1,Pen,5,10.00
+2,Pencil,20,5.00
+3,Eraser,abc,3.50
+4,Notebook,15,-50.00
+5,Marker,8,15.75
+6,Ruler,-2,12.00
+7,Sharpener,3,8.00
