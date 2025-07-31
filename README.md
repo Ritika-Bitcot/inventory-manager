@@ -18,77 +18,80 @@ It includes categorized examples on control flow, data types, exception handling
 ## 📁 Folder Structure
 
 ```
-├── inventory-manager/
-│ ├── Control_Flow/
-│ │ ├── conditional.py
-│ │ └── loops.py
-│ │
-| |── csv_modules/
-│ │ ├── contacts.csv
-│ │ ├── people.csv
-│ │ ├── program1.py
-│ │ ├── program2.py
-| |
-│ ├── Datatypes/
-│ │ ├── dictionary/
-│ │ | | ├── basics.py
-| | │ │ ├── methods.py
-| | │ │ ├── programs.py
-│ │ ├── list/
-│ │ | | ├── basics.py
-| | │ │ ├── methods.py
-| | │ │ ├── programs.py
-│ │ ├── set/
-│ │ | | ├── basics.py
-| | │ │ ├── programs.py
-│ │ ├── strings/
-│ │ | | ├── basics.py
-| | │ │ ├── methods.py
-| | │ │ ├── programs.py
-│ │ └── tuple/
-│ │ | | ├── basics.py
-| | │ │ ├── programs.py
-│ │
-│ ├── exception_handling/
-│ │ └── data_processing.py
-| | └── data_processing_using_pydantic.py
-| | └── data.csv
-│ │
-│ ├── file_handling/
-│ │ ├── binaryfile_program.py
-│ │ ├── binaryfile.bin
-│ │ ├── test_textfile.txt
-│ │ └── txtfile_program.py
-│ │
-│ ├── GIt_Commands/
-│ │ └── commands.txt
-│ │
-│ ├── primitive_data_type/
-│ │ ├── operators_and_fstring.py
-│ │ └── variable_and_assignment.py
-│ │
-│ ├── process_data_inventory/
-│ │ ├── inventory.csv
-│ │ ├── low_stock_report.txt
-│ │ ├── process_inventory.py
-│ │ └── errors.log
-│ │
-│ ├── SRP_Solid_Principle/
-│ │ ├── calc_area.py
-│ │ ├── even.py
-│ │ ├── log.txt
-│ │ ├── place_order.py
-│ │ ├── student_score.py
-│ │ └── user_authentication.py
-│ │
-│ ├── list_comprehension.py
-│ ├── equality_and_identity.py
-│ ├── hello.py
-│ ├── zen.py
-│ ├── README.md
-│ ├── .gitignore
-│ └── venv/
-│ └── requirements.txt
+inventory-manager/
+├── Week1&2/
+│   ├── Control_Flow/
+│   │   ├── conditional.py
+│   │   └── loops.py
+│   │
+│   ├── csv_modules/
+│   │   ├── contacts.csv
+│   │   ├── people.csv
+│   │   ├── program1.py
+│   │   └── program2.py
+│   │
+│   ├── Datatypes/
+│   │   ├── dictionary/
+│   │   │   ├── basics.py
+│   │   │   ├── methods.py
+│   │   │   └── programs.py
+│   │   ├── list/
+│   │   │   ├── basics.py
+│   │   │   ├── methods.py
+│   │   │   └── programs.py
+│   │   ├── set/
+│   │   │   ├── basics.py
+│   │   │   └── programs.py
+│   │   ├── strings/
+│   │   │   ├── basics.py
+│   │   │   ├── methods.py
+│   │   │   └── programs.py
+│   │   └── tuple/
+│   │       ├── basics.py
+│   │       └── programs.py
+│   │
+│   ├── exception_handling/
+│   │   ├── data_processing.py
+│   │   ├── data_processing_using_pydantic.py
+│   │   └── data.csv
+│   │
+│   ├── file_handling/
+│   │   ├── binaryfile_program.py
+│   │   ├── binaryfile.bin
+│   │   ├── test_textfile.txt
+│   │   └── txtfile_program.py
+│   │
+│   ├── Git_Commands/
+│   │   └── commands.txt
+│   │
+│   ├── primitive_data_type/
+│   │   ├── operators_and_fstring.py
+│   │   └── variable_and_assignment.py
+│   │
+│   ├── process_data_inventory/
+│   │   ├── inventory.csv
+│   │   ├── low_stock_report.txt
+│   │   ├── process_inventory.py
+│   │   └── errors.log
+│   │
+│   ├── SRP_Solid_Principle/
+│   │   ├── calc_area.py
+│   │   ├── even.py
+│   │   ├── log.txt
+│   │   ├── place_order.py
+│   │   ├── student_score.py
+│   │   └── user_authentication.py
+│   │
+│   ├── list_comprehension.py
+│   ├── equality_and_identity.py
+│   ├── hello.py
+│   └── zen.py
+│
+├── Week3/
+├── README.md
+├── .gitignore
+├── venv/
+└── requirements.txt
 
 ```
 
