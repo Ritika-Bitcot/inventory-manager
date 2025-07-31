@@ -1,8 +1,18 @@
-product_id,product_name,quantity,price
-1,Pen,5,10.00
-2,Pencil,20,5.00
-3,Eraser,abc,3.50
-4,Notebook,15,-50.00
-5,Marker,8,15.75
-6,Ruler,-2,12.00
-7,Sharpener,3,8.00
+product_id,product_name,quantity,price,category,mfg_date,expiry_date,purchase_date,warranty_period,author,publication_year
+1,Pen,5,10.00,,,,
+2,Pencil,20,5.00,,,,
+3,Eraser,abc,3.50,,,,
+4,Notebook,15,-50.00,,,,
+5,Marker,8,15.75,,,,
+6,Ruler,-2,12.00,,,,
+7,Sharpener,3,8.00,,,,
+8,Color Paper,5,12.00,,,,
+9,White Paper,12,-10.00,,,,
+10,Milk,10,50.00,food,2024-01-01,2024-08-01,,,,
+11,Laptop,5,70000.00,electronic,,,2023-03-01,24,,
+12,Python 101,15,499.00,book,,,,,John Doe,2020
+13,Bread,3,40.00,food,2024-07-01,2024-07-30,,,,
+14,Monitor,2,12000.00,electronic,,,2022-12-01,36,,
+15,Invalid Date Food,5,20.00,food,2024-08-01,2024-07-01,,,,
+16,Expired Food,5,20.00,food,2024-01-01,2023-12-31,,,,
+17,Unknown Category Product,10,100.00,unknown,,,,
