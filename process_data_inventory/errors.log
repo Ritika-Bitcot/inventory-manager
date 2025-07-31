@@ -1,0 +1,9 @@
+ERROR:root:Row 4: invalid literal for int() with base 10: 'abc'
+ERROR:root:Row 5: 1 validation error for Product
+price
+  Input should be greater than 0 [type=greater_than, input_value=-50.0, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/greater_than
+ERROR:root:Row 7: 1 validation error for Product
+quantity
+  Input should be greater than or equal to 0 [type=greater_than_equal, input_value=-2, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.11/v/greater_than_equal

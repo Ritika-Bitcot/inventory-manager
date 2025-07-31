@@ -18,62 +18,100 @@ It includes categorized examples on control flow, data types, exception handling
 ## 📁 Folder Structure
 
 ```
-inventory-manager/
-├── Control_Flow/ # Conditional logic and loop examples
-│ ├── conditional.py
-│ └── loops.py
-│
-├── Datatypes/ # Built-in data types and operations
-│ ├── list/
-│ ├── set/
-│ ├── tuple/
-│ ├── dictionary/
-│ └── strings/
-│
-├── SRP_Solid_Principle/ # Real-world use cases of SRP (Single Responsibility Principle)
-│ ├── calc_area.py
-│ ├── even.py
-│ ├── place_order.py
-│ ├── student_score.py
-│ └── user_authentication.py
-│
-├── file_handling/ # Read/write examples for text and binary files
-│ ├── binaryfile_program.py
-│ ├── txtfile_program.py
-│ ├── binaryfile.bin
-│ └── test_textfile.txt
-│
-├── exception_handling/ # Error handling patterns and examples
-│
-├── primitive_data_type/ # Examples of fundamental Python types
-│
-├── GIt_Commands/ # Useful Git commands (commands.txt)
-│
-├── data_processing.py # Small data transformation example
-├── data.csv # Sample CSV for practice
-├── equality_and_identity.py # Comparison using == vs is
-├── list_comprehension/ # Examples of list comprehension
-├── hello.py # First Python test script
-├── zen.py # The Zen of Python (PEP 20)
-├── readme.md # Project documentation (this file)
-├── .gitignore # Git ignore rules
-└── venv/ # Python virtual environment (excluded from Git)
-```
+├── inventory-manager/
+│ ├── Control_Flow/
+│ │ ├── conditional.py
+│ │ └── loops.py
+│ │
+| |── csv_modules/
+│ │ ├── contacts.csv
+│ │ ├── people.csv
+│ │ ├── program1.py
+│ │ ├── program2.py
+| |
+│ ├── Datatypes/
+│ │ ├── dictionary/
+│ │ | | ├── basics.py
+| | │ │ ├── methods.py
+| | │ │ ├── programs.py
+│ │ ├── list/
+│ │ | | ├── basics.py
+| | │ │ ├── methods.py
+| | │ │ ├── programs.py
+│ │ ├── set/
+│ │ | | ├── basics.py
+| | │ │ ├── programs.py
+│ │ ├── strings/
+│ │ | | ├── basics.py
+| | │ │ ├── methods.py
+| | │ │ ├── programs.py
+│ │ └── tuple/
+│ │ | | ├── basics.py
+| | │ │ ├── programs.py
+│ │
+│ ├── exception_handling/
+│ │ └── data_processing.py
+| | └── data_processing_using_pydantic.py
+| | └── data.csv
+│ │
+│ ├── file_handling/
+│ │ ├── binaryfile_program.py
+│ │ ├── binaryfile.bin
+│ │ ├── test_textfile.txt
+│ │ └── txtfile_program.py
+│ │
+│ ├── GIt_Commands/
+│ │ └── commands.txt
+│ │
+│ ├── primitive_data_type/
+│ │ ├── operators_and_fstring.py
+│ │ └── variable_and_assignment.py
+│ │
+│ ├── process_data_inventory/
+│ │ ├── inventory.csv
+│ │ ├── low_stock_report.txt
+│ │ ├── process_inventory.py
+│ │ └── errors.log
+│ │
+│ ├── SRP_Solid_Principle/
+│ │ ├── calc_area.py
+│ │ ├── even.py
+│ │ ├── log.txt
+│ │ ├── place_order.py
+│ │ ├── student_score.py
+│ │ └── user_authentication.py
+│ │
+│ ├── list_comprehension.py
+│ ├── equality_and_identity.py
+│ ├── hello.py
+│ ├── zen.py
+│ ├── README.md
+│ ├── .gitignore
+│ └── venv/
+│ └── requirements.txt
 
+```
 
 ---
 
-## 🔎 Highlights of SRP Implementations
+## 🔍 Notable Module Highlights
 
+### 📦 `process_data_inventory/`
+- Validates and processes inventory data from CSV files.
+- Uses `pydantic` for model validation and `try-except` for graceful error handling.
+- Outputs include:
+  - `low_stock_report.txt` — lists low-stock items.
+  - `errors.log` — logs rows that failed validation.
+
+### 🧱 `SRP_Solid_Principle/`
+Practical implementations of the **Single Responsibility Principle**:
 | File                  | Responsibility Description                            |
 |-----------------------|--------------------------------------------------------|
 | `calc_area.py`        | Calculates area of different shapes                    |
-| `place_order.py`      | Places customer orders (isolated from payment logic)   |
-| `student_score.py`    | Manages student scoring and report generation          |
-| `user_authentication.py` | Handles login and user verification                  |
-| `even.py`             | Checks and prints even numbers from a list             |
-
-Each file follows SRP by **doing only one thing** and doing it well — improving modularity and maintainability.
+| `even.py`             | Prints even numbers from a list                        |
+| `place_order.py`      | Places and records customer orders                     |
+| `student_score.py`    | Computes scores and generates reports                  |
+| `user_authentication.py` | Handles user login/validation logic               |
 
 ---
 
@@ -101,7 +139,7 @@ source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 ```
 
-## Run Any Python File
+## Run Any Python File.
 ```
 python3 Control_Flow/conditional.py
 ```
