@@ -12,7 +12,7 @@ def setup_logger(log_file: str = 'errors.log'):
 #Product Registry
 PRODUCT_CLASS_MAP = {}
 
-def register_product_type(category: str):
+def register_product_type(category: str)-> callable:
     """
     Registers a product type with the given category.
     
@@ -41,7 +41,7 @@ class Product(BaseModel):
         """
         return self.price * self.quantity
 
-# === Subclasses (registered dynamically) ===
+# Subclasses (registered dynamically)
 @register_product_type("food")
 class FoodProduct(Product):
     category: str = "food"
@@ -76,7 +76,7 @@ class BookProduct(Product):
     author: str = Field(..., min_length=3)
     publication_year: int = Field(..., ge=1000, le=datetime.now().year)
 
-# === Inventory Management ===
+# Inventory Management
 class Inventory:
     def __init__(self):
         """

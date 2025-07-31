@@ -88,6 +88,10 @@ inventory-manager/
 │   └── zen.py
 │
 ├── Week3/
+|   ├── errors.log
+│   ├── inventory.csv
+│   ├── low_stock_report.txt
+│   ├── process_inventory.py
 ├── README.md
 ├── .gitignore
 ├── venv/
