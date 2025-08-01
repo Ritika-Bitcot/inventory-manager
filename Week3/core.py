@@ -94,7 +94,7 @@ class Inventory:
         return {
             "total_products": total_products,
             "total_quantity": total_quantity,
-            "highest_sale_name": hs_name,
-            "highest_sale_amount": hs_amt,
+            "hs_name": hs_name,
+            "hs_amt": hs_amt,
             "total_value": total_value,
         }
