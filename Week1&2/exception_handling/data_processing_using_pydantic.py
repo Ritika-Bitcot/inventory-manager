@@ -1,6 +1,7 @@
 import csv
-from pydantic import BaseModel, Field, field_validator, ValidationError
-from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 
 class Product(BaseModel):
