@@ -16,6 +16,11 @@ def register_product_type(category: str):
     """
 
     def decorator(cls):
+        """
+        Decorator to register a product type with the given category.
+        The category is converted to lower case to ensure that
+        the mapping is case-insensitive.
+        """
         PRODUCT_CLASS_MAP[category.lower()] = cls
         return cls
 
