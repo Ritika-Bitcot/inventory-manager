@@ -126,7 +126,7 @@ Practical implementations of the **Single Responsibility Principle**:
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.10+
 - Git (for version control)
 
 ### Setup Instructions

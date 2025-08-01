@@ -12,19 +12,22 @@ Problem: Input + logic + output = Too many responsibilities.
 
 """
 
-def get_user_input()->int:
+
+def get_user_input() -> int:
     """
     Get user input and return the integer.
     """
     return int(input("Enter a number: "))
 
-def is_even(num:int)->bool:
+
+def is_even(num: int) -> bool:
     """
     Determine if a given integer is even.
     """
     return num % 2 == 0
 
-def print_even_status(is_even_flag: bool)->None:
+
+def print_even_status(is_even_flag: bool) -> None:
     """
     Print "Even" if the given flag is True, otherwise print "Odd".
     """

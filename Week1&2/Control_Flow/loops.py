@@ -58,9 +58,7 @@ for i in range(1, 4):
             pass
         print(f"{i} x {j} = {i * j}")
 
-#for each with skip
-for each in range(1,10,2): 
-    print(each,end=" ")
+# for each with skip
+for each in range(1, 10, 2):
+    print(each, end=" ")
 print()
-
-

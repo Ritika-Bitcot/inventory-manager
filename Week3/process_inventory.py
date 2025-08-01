@@ -5,29 +5,31 @@ import csv
 import logging
 from typing import List, Optional
 
-# Setup logging
-def setup_logger(log_file: str = 'errors.log'):
-    logging.basicConfig(filename=log_file, level=logging.ERROR, filemode='w')
 
-#Product Registry
+# Setup logging
+def setup_logger(log_file: str = "errors.log"):
+    logging.basicConfig(filename=log_file, level=logging.ERROR, filemode="w")
+
+
+# Product Registry
 PRODUCT_CLASS_MAP = {}
 
-def register_product_type(category: str)-> callable:
+
+def register_product_type(category: str) -> callable:
     """
     Registers a product type with the given category.
-    
-    The category is converted to lower case to ensure that the mapping is case-insensitive.
-    The product class is registered as the value associated with the given category.
-    
-    :param category: The category of the product type to register.
-    :return: A decorator that can be used to register the product type.
+    The category is converted to lower case to ensure that
+    the mapping is case-insensitive.
     """
+
     def decorator(cls):
         PRODUCT_CLASS_MAP[category.lower()] = cls
         return cls
+
     return decorator
 
-#Base Product
+
+# Base Product
 class Product(BaseModel):
     product_id: int = Field(..., gt=0)
     product_name: str = Field(..., min_length=3, max_length=50)
@@ -41,6 +43,7 @@ class Product(BaseModel):
         """
         return self.price * self.quantity
 
+
 # Subclasses (registered dynamically)
 @register_product_type("food")
 class FoodProduct(Product):
@@ -48,15 +51,15 @@ class FoodProduct(Product):
     mfg_date: datetime
     expiry_date: datetime
 
-    @model_validator(mode='after')
-    def check_expiry_after_mfg(self)-> Product:
+    @model_validator(mode="after")
+    def check_expiry_after_mfg(self) -> Product:
         """
         Checks if the expiry date is after the manufacturing date.
-        Raises a ValueError if the expiry date is not after the manufacturing date.
         """
         if self.expiry_date <= self.mfg_date:
             raise ValueError("expiry_date must be after mfg_date")
         return self
+
 
 @register_product_type("electronic")
 class ElectronicProduct(Product):
@@ -64,17 +67,19 @@ class ElectronicProduct(Product):
     purchase_date: datetime
     warranty_period: int = Field(..., ge=0)
 
-    def get_warranty_end_date(self)-> datetime:
+    def get_warranty_end_date(self) -> datetime:
         """
-        Calculates the warranty end date based on the purchase date and warranty period.
+        Calculates the warranty end date based on the purchase date.
         """
         return self.purchase_date + relativedelta(months=self.warranty_period)
+
 
 @register_product_type("book")
 class BookProduct(Product):
     category: str = "book"
     author: str = Field(..., min_length=3)
     publication_year: int = Field(..., ge=1000, le=datetime.now().year)
+
 
 # Inventory Management
 class Inventory:
@@ -87,39 +92,26 @@ class Inventory:
     def create_product_from_row(self, row: dict) -> Product:
         """
         Creates a Product instance based on the given row of data.
-
-        Args:
-            row: A dictionary containing the data for the product. The dictionary
-                should contain the following keys:
-                    - product_id: int
-                    - product_name: str
-                    - category: str
-                    - quantity: int
-                    - price: float
-                The category is used to determine the type of product to create,
-                and the other keys are passed as keyword arguments to the product
-                class constructor.
-
-        Returns:
-            A Product instance.
-
-        Raises:
-            Exception: If the row data is invalid.
         """
-        category_raw = row.get('category', '')
-        category = category_raw.lower().strip() if category_raw else ''
+        category_raw = row.get("category", "")
+        category = category_raw.lower().strip() if category_raw else ""
         product_class = PRODUCT_CLASS_MAP.get(category, Product)
 
-        base_fields = ['product_id', 'product_name', 'category', 'quantity', 'price']
+        base_fields = ["product_id", "product_name", "category", "quantity", "price"]
+
         try:
             base_data = {
-                'product_id': int(row['product_id']),
-                'product_name': row['product_name'],
-                'category': category_raw if category_raw else None,
-                'quantity': int(row['quantity']),
-                'price': float(row['price']),
+                "product_id": int(row["product_id"]),
+                "product_name": row["product_name"],
+                "category": category_raw if category_raw else None,
+                "quantity": int(row["quantity"]),
+                "price": float(row["price"]),
             }
-            extra_data = {k: v for k, v in row.items() if k not in base_fields and v != ''}
+
+            extra_data = {
+                k: v for k, v in row.items() if k not in base_fields and v != ""
+            }
+
             return product_class(**base_data, **extra_data)
         except Exception as e:
             raise e
@@ -127,16 +119,9 @@ class Inventory:
     def load_from_csv(self, csv_file: str) -> None:
         """
         Loads the inventory from the given CSV file.
-
-        Iterates over the given CSV file, attempts to create a Product instance
-        from each row, and appends it to the internal list of products. If any
-        row fails to be parsed, logs an error message with the row index and
-        the exception message.
-
-        Args:
-            csv_file: The path to the CSV file to be loaded.
+        Logs errors for invalid rows.
         """
-        with open(csv_file, newline='') as f:
+        with open(csv_file, newline="") as f:
             reader = csv.DictReader(f)
             for idx, row in enumerate(reader, start=2):
                 try:
@@ -145,29 +130,28 @@ class Inventory:
                 except (ValidationError, ValueError, TypeError) as e:
                     logging.error(f"Row {idx}: {e}")
 
-    def generate_low_stock_report(self, threshold: int = 10, output_file: str = 'low_stock_report.txt') -> None:
+    def generate_low_stock_report(
+        self, threshold: int = 10, output_file: str = "low_stock_report.txt"
+    ) -> None:
         """
-        Generates a report of products with stock levels below the specified threshold.
-
-        Iterates over the inventory products and writes the product name and quantity
-        to a specified output file if the product's quantity is below the given threshold.
+        Generates a report of products below the given stock threshold.
         """
-
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             for product in self.products:
                 if product.quantity < threshold:
                     f.write(f"{product.product_name}: {product.quantity}\n")
 
-    def get_total_inventory_value(self) -> float:
+    def get_total_inventory(self) -> float:
         """
-        Calculates the total value of the inventory by summing the total value of each product. 
+        Calculates the total value of the inventory.
         """
         return sum(p.get_total_value() for p in self.products)
 
+
 # === Run the Program ===
-if __name__ == '__main__':
+if __name__ == "__main__":
     setup_logger()
     inventory = Inventory()
-    inventory.load_from_csv('inventory.csv')
-    print(f"Total Inventory Value: ₹{inventory.get_total_inventory_value():.2f}")
+    inventory.load_from_csv("inventory.csv")
+    print(f"Total Inventory Value: ₹{inventory.get_total_inventory():.2f}")
     inventory.generate_low_stock_report()

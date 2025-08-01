@@ -1,5 +1,6 @@
 filename = "binaryfile.bin"
 
+
 def write_binary_file() -> None:
     """
     Creates a binary file and writes multiple lines to it in binary mode.
@@ -12,6 +13,7 @@ def write_binary_file() -> None:
         print("Binary file written successfully.")
     except PermissionError:
         print("You do not have permission to write to the binary file.")
+
 
 def read_binary_file() -> None:
     """
@@ -26,9 +28,12 @@ def read_binary_file() -> None:
     except PermissionError:
         print("You do not have permission to read the binary file.")
 
+
 def modify_binary_file() -> None:
     """
-    Opens the binary file in read-write mode ('rb+') and overwrites the beginning.
+    Opens the binary file in
+    read-write mode ('rb+') and
+    overwrites the beginning.
     Prints the content before modification.
     """
     try:
@@ -42,6 +47,7 @@ def modify_binary_file() -> None:
         print("The binary file was not found.")
     except PermissionError:
         print("You do not have permission to modify the binary file.")
+
 
 def overwrite_binary_file() -> None:
     """
@@ -57,6 +63,7 @@ def overwrite_binary_file() -> None:
     except PermissionError:
         print("You do not have permission to write to the binary file.")
 
+
 def append_read_binary_file() -> None:
     """
     Opens the file in append-read mode ('ab+'), appends a new line,
@@ -70,6 +77,7 @@ def append_read_binary_file() -> None:
             print(file.read())
     except PermissionError:
         print("You do not have permission to append to the binary file.")
+
 
 if __name__ == "__main__":
     write_binary_file()

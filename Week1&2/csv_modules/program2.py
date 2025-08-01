@@ -1,15 +1,18 @@
 import csv
 
-def read_csv_with_dictreader()->None:
+
+def read_csv_with_dictreader() -> None:
     """
     Reads a CSV file using DictReader and prints the values of each row.
     The CSV file is expected to have the following columns: id, name, email.
     """
     try:
-        with open('contacts.csv','r') as f:
-            reader=csv.DictReader(f)
+        with open("contacts.csv", "r") as f:
+            reader = csv.DictReader(f)
             for row in reader:
-                print(f"ID: {row['id']}, Name: {row['name']}, Email: {row['email']}")
+                print(f"ID: {row['id']}", end=" ")
+                print(f"Name: {row['name']}", end=" ")
+                print(f" Email: {row['email']}")
         print()
     except FileNotFoundError:
         print("Error: The file 'contacts.csv' was not found.")
@@ -20,22 +23,23 @@ def read_csv_with_dictreader()->None:
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-def write_csv_with_dictwriter()->None:
+
+def write_csv_with_dictwriter() -> None:
     """
     Writes a list of dictionaries to a CSV file using DictWriter.
     The dictionaries must have the following keys: id, name, email.
     The CSV file is expected to have the same columns.
     """
     data = [
-        {'id': 101, 'name': 'David', 'email': 'david@example.com'},
-        {'id': 102, 'name': 'Eva', 'email': 'eva@example.com'},
-        {'id': 103, 'name': 'Frank', 'email': 'frank@example.com'},
+        {"id": 101, "name": "David", "email": "david@example.com"},
+        {"id": 102, "name": "Eva", "email": "eva@example.com"},
+        {"id": 103, "name": "Frank", "email": "frank@example.com"},
     ]
 
     try:
-        with open('contacts.csv','w',newline='') as f:
-            fieldnames = ['id', 'name', 'email']
-            writer=csv.DictWriter(f,fieldnames=fieldnames)
+        with open("contacts.csv", "w", newline="") as f:
+            fieldnames = ["id", "name", "email"]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(data)
             print("Data written to contacts.csv")
