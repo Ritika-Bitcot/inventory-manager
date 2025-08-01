@@ -16,7 +16,7 @@ print(f"Type of is_student: {type(is_student)}")
 
 # Type checking
 print("---- Type Checking ----")
-print(isinstance(age, int))         # True
-print(isinstance(height, float))    # True
-print(isinstance(name, str))        # True
-print(isinstance(is_student, bool)) # True
+print(isinstance(age, int))  # True
+print(isinstance(height, float))  # True
+print(isinstance(name, str))  # True
+print(isinstance(is_student, bool))  # True

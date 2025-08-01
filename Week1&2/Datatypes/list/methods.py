@@ -35,24 +35,24 @@ print("\nList after Addition of a Tuple: ")
 print(List)
 
 # Addition of List to a List
-List2 = ['For', 'Geeks']
+List2 = ["For", "Geeks"]
 List.append(List2)
 print("\nList after Addition of a List: ")
 print(List)
 
-# Python program to demonstrate 
+# Python program to demonstrate
 # Addition of elements in a List
- 
+
 # Creating a List
-List = [1,2,3,4]
+List = [1, 2, 3, 4]
 print("Initial List: ")
 print(List)
 
-# Addition of Element at 
+# Addition of Element at
 # specific Position
 # (using Insert Method)
 List.insert(3, 12)
-List.insert(0, 'Geeks')
+List.insert(0, "Geeks")
 print("\nList after performing Insert Operation: ")
 print(List)
 
@@ -67,12 +67,12 @@ print(List)
 # Addition of multiple elements
 # to the List at the end
 # (using Extend Method)
-List.extend([8, 'Geeks', 'Always'])
+List.extend([8, "Geeks", "Always"])
 print("\nList after performing Extend Operation: ")
 print(List)
 
 # Reversing a list
-mylist = [1, 2, 3, 4, 5, 'Geek', 'Python']
+mylist = [1, 2, 3, 4, 5, "Geek", "Python"]
 mylist.reverse()
 print(mylist)
 
@@ -80,8 +80,7 @@ print(mylist)
 # Removal of elements in a List
 
 # Creating a List
-List = [1, 2, 3, 4, 5, 6,
-        7, 8, 9, 10, 11, 12]
+List = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 print("Initial List: ")
 print(List)
 
@@ -108,9 +107,10 @@ print("\nList after popping a specific element: ")
 print(List)
 
 
-#List Comprehension
-#Synatx:- newList = [ expression(element) for element in oldList if condition ]
-odd_square = [x ** 2 for x in range(1, 11) if x % 2 == 1]
+# List Comprehension
+# Synatx:- newList = [ expression(element)
+# for element in oldList if condition ]
+odd_square = [x**2 for x in range(1, 11) if x % 2 == 1]
 print(odd_square)
 
 # Python code to demonstrate the working of
@@ -119,16 +119,16 @@ print(odd_square)
 lis = [2, 1, 3, 5, 4]
 
 # using len() to print length of list
-print ("The length of list is : ", end="")
-print (len(lis))
+print("The length of list is : ", end="")
+print(len(lis))
 
 # using min() to print minimum element of list
-print ("The minimum element of list is : ", end="")
-print (min(lis))
+print("The minimum element of list is : ", end="")
+print(min(lis))
 
 # using max() to print maximum element of list
-print ("The maximum element of list is : ", end="")
-print (max(lis))
+print("The maximum element of list is : ", end="")
+print(max(lis))
 
 # Python code to demonstrate the working of
 # index() and count()
@@ -137,9 +137,9 @@ lis = [2, 1, 3, 5, 4, 3]
 
 # using index() to print first occurrence of 3
 # prints 5
-print ("The first occurrence of 3 after 3rd position is : ", end="")
-print (lis.index(3, 3, 6))
+print("The first occurrence of 3 after 3rd position is : ", end="")
+print(lis.index(3, 3, 6))
 
 # using count() to count number of occurrence of 3
-print ("The number of occurrences of 3 is : ", end="")
-print (lis.count(3))
+print("The number of occurrences of 3 is : ", end="")
+print(lis.count(3))

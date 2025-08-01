@@ -1,23 +1,22 @@
 # Creating a Dictionary
 # with Integer Keys
-Dict = {1: 'Geeks', 2: 'For', 3: 'Geeks'}
+Dict = {1: "Geeks", 2: "For", 3: "Geeks"}
 print("\nDictionary with the use of Integer Keys: ")
 print(Dict)
 
 # Creating a Dictionary
 # with Mixed keys
-Dict = {'Name': 'Geeks', 1: [1, 2, 3, 4]}
+Dict = {"Name": "Geeks", 1: [1, 2, 3, 4]}
 print("\nDictionary with the use of Mixed Keys: ")
 print(Dict)
 
 # Creating a Dictionary
-Dict = {'Dict1': {1: 'Geeks'},
-        'Dict2': {'Name': 'For'}}
+Dict = {"Dict1": {1: "Geeks"}, "Dict2": {"Name": "For"}}
 
 # Accessing element using key
-print(Dict['Dict1'])
-print(Dict['Dict1'][1])
-print(Dict['Dict2']['Name'])
+print(Dict["Dict1"])
+print(Dict["Dict1"][1])
+print(Dict["Dict2"]["Name"])
 
 # demo for all dictionary methods
 dict1 = {1: "Python", 2: "Java", 3: "Ruby", 4: "Scala"}

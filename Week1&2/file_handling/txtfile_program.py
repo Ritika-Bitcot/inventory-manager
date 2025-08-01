@@ -1,8 +1,10 @@
 filename = "test_textfile.txt"
 
+
 def create_file() -> None:
     """
-    Creates a text file with the given filename and writes multiple lines to it.
+    Creates a text file with the given
+    filename and writes multiple lines to it.
     """
     try:
         with open(filename, "x") as f:
@@ -13,6 +15,7 @@ def create_file() -> None:
         print("File already exists.")
     except PermissionError:
         print("You do not have permission to create the file.")
+
 
 def read_file() -> None:
     """
@@ -25,6 +28,7 @@ def read_file() -> None:
         print("The file was not found. Please check the file path.")
     except PermissionError:
         print("You do not have permission to read the file.")
+
 
 def readlines_file() -> None:
     """
@@ -39,6 +43,7 @@ def readlines_file() -> None:
     except PermissionError:
         print("You do not have permission to read the file.")
 
+
 def readline_using_forloop() -> None:
     """
     Reads the file line by line and prints each line.
@@ -52,6 +57,7 @@ def readline_using_forloop() -> None:
     except PermissionError:
         print("You do not have permission to read the file.")
 
+
 def append_file() -> None:
     """
     Appends a new line to the end of the file.
@@ -62,11 +68,13 @@ def append_file() -> None:
     except PermissionError:
         print("You do not have permission to write to the file.")
 
+
 def read_write_mode() -> None:
     """
     Opens the file in read-write mode and reads the content.
     Then, moves the file pointer to the beginning and writes a new line.
-    Prints the current position of the file pointer and reads the content again.
+    Prints the current position of the
+    file pointer and reads the content again.
     """
     try:
         with open(filename, "r+") as f:
@@ -76,9 +84,10 @@ def read_write_mode() -> None:
             print(f.tell())
             print(f.read())
     except FileNotFoundError:
-        print(f"The file '{filename}' was not found. Please check the file path.")
+        print(f"'{filename} not found. Please check the file path.")
     except PermissionError:
-        print(f"You do not have permission to read and write to the file '{filename}'.")
+        print(f"You do not have permission to read and write in'{filename}'.")
+
 
 def write_read_mode() -> None:
     """
@@ -95,6 +104,7 @@ def write_read_mode() -> None:
     except PermissionError:
         print(f"You do not have permission to write to the file '{filename}'.")
 
+
 def append_read_mode() -> None:
     """
     Opens the file in append-read mode and appends a new line.
@@ -109,6 +119,7 @@ def append_read_mode() -> None:
             print(f.read())
     except PermissionError:
         print(f"You do not have permission to write to the file '{filename}'.")
+
 
 if __name__ == "__main__":
     create_file()

@@ -22,13 +22,15 @@ Logging to a file
 
 """
 
-def is_valid_user(username: str, password: str)->bool:
+
+def is_valid_user(username: str, password: str) -> bool:
     """
     Check if the given username and password are valid.
     """
     return username == "admin" and password == "1234"
 
-def show_login_message(success: bool)->None:
+
+def show_login_message(success: bool) -> None:
     """
     Display a login message based on the success parameter.
     """
@@ -37,12 +39,14 @@ def show_login_message(success: bool)->None:
     else:
         print("Login failed!")
 
-def log_login_activity(username: str)->None:
+
+def log_login_activity(username: str) -> None:
     """
     Log the login activity to a file.
     """
     with open("log.txt", "a") as f:
         f.write(f"{username} logged in\n")
+
 
 user = input("Username: ")
 pwd = input("Password: ")

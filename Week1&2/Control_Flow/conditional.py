@@ -1,6 +1,7 @@
 # Program to check grade based on marks
 
-def check_grade(marks:int)->str:
+
+def check_grade(marks: int) -> str:
     """
     Determine the grade for a student based on their marks.
     """
@@ -15,6 +16,7 @@ def check_grade(marks:int)->str:
         return "Grade: D"
     else:
         return "Grade: F (Fail)"
+
 
 student_marks = int(input("Enter student's marks: "))
 print(check_grade(student_marks))
