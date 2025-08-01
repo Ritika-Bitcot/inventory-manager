@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field, ValidationError
 import csv
 import logging
 from typing import List
+
+from pydantic import BaseModel, Field, ValidationError
 
 
 #  Setup logging

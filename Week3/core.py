@@ -1,8 +1,9 @@
 import csv
 import logging
 from typing import List
+
+from models import PRODUCT_CLASS_MAP, Product
 from pydantic import ValidationError
-from models import Product, PRODUCT_CLASS_MAP
 
 
 class Inventory:
@@ -69,3 +70,31 @@ class Inventory:
         Calculates the total value of the inventory.
         """
         return sum(p.get_total_value() for p in self.products)
+
+    def get_summary(self) -> dict:
+        """
+        Returns a summary of inventory including:
+        - Total products
+        - Total quantity
+        - Highest sale (product and amount)
+        - Total value
+        """
+        total_products = len(self.products)
+        total_quantity = sum(p.quantity for p in self.products)
+        total_value = self.get_total_inventory()
+
+        if self.products:
+            highest_sale = max(self.products, key=lambda p: p.get_total_value())
+            hs_name = highest_sale.product_name
+            hs_amt = highest_sale.get_total_value()
+        else:
+            hs_name = "N/A"
+            hs_amt = 0.0
+
+        return {
+            "total_products": total_products,
+            "total_quantity": total_quantity,
+            "highest_sale_name": hs_name,
+            "highest_sale_amount": hs_amt,
+            "total_value": total_value,
+        }
