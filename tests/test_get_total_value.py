@@ -14,7 +14,7 @@ from Week3.models import Product
         (0, 0.01, 0.0),
     ],
 )
-def test_get_total_value(quantity, price, expected):
+def test_get_total_value(quantity, price, expected) -> None:
     """
     Tests the get_total_value method of the Product class.
 
@@ -31,7 +31,15 @@ def test_get_total_value(quantity, price, expected):
     assert product.get_total_value() == pytest.approx(expected, 0.01)
 
 
-def test_product_should_raise_validation_error_on_negative_price():
+def test_product_should_raise_validation_error_on_negative_price() -> None:
+    """
+    Tests that creating a Product with a negative price raises a ValidationError.
+
+    This test ensures that the Product model enforces the constraint that
+    the price must be greater than zero, as defined in the Product class
+    using Pydantic's Field validation.
+    """
+
     with pytest.raises(ValidationError):
         Product(
             product_id=1,
