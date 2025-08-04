@@ -1,8 +1,9 @@
 import csv
 import logging
+from datetime import datetime
 from typing import List
 
-from models import PRODUCT_CLASS_MAP, Product
+from models import PRODUCT_CLASS_MAP, FoodProduct, Product
 from pydantic import ValidationError
 
 
@@ -112,27 +113,46 @@ class Inventory:
         - Total quantity
         - Highest sale (product and amount)
         - Total value
+
+        Expired FoodProducts are excluded from the summary.
         """
-        total_products: int = len(self.products)
+        now = datetime.now()
+
+        valid_products = [
+            p
+            for p in self.products
+            if not (isinstance(p, FoodProduct) and p.expiry_date < now)
+        ]
+
+        total_products = len(valid_products)
 
         if total_products == 0:
-            logging.warning("Inventory is empty. Summary values will all be zero.")
+            logging.warning(
+                "No valid (non-expired) products. Summary values will all be zero."
+            )
+            return {
+                "total_products": 0,
+                "total_quantity": 0,
+                "hs_name": "N/A",
+                "hs_amt": 0.0,
+                "total_value": 0.0,
+            }
 
-        total_quantity: int = sum(p.quantity for p in self.products)
-        total_value: float = self.get_total_inventory()
+        total_quantity = sum(p.quantity for p in valid_products)
+        total_value = sum(p.get_total_value() for p in valid_products)
 
         if total_quantity == 0:
             logging.warning(
-                "Total inventory quantity is zero — all products might be out of stock."
+                "Total quantity is zero — all products may be out of stock."
             )
 
-        if self.products:
-            highest_sale = max(self.products, key=lambda p: p.get_total_value())
-            hs_name: str = highest_sale.product_name
-            hs_amt: float = highest_sale.get_total_value()
-        else:
-            hs_name = "N/A"
-            hs_amt = 0.0
+        try:
+            highest_sale = max(valid_products, key=lambda p: p.get_total_value())
+            hs_name = highest_sale.product_name
+            hs_amt = highest_sale.get_total_value()
+        except Exception as e:
+            logging.error(f"Error calculating highest sale: {e}")
+            hs_name, hs_amt = "N/A", 0.0
 
         return {
             "total_products": total_products,
