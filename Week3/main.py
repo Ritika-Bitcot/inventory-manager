@@ -13,31 +13,21 @@ def display_summary(summary: dict) -> None:
     print(f"💰 Total Inventory Value: ₹{summary['total_value']:.2f}\n")
 
 
-def main():
+def main() -> None:
     """
-    Main function to run the inventory summary process.
+    Main function to run the inventory summary process with error handling.
     """
     setup_logger()
-    inventory = Inventory()
-    inventory.load_from_csv("data/products.csv")
 
-    summary = inventory.get_summary()
-    display_summary(summary)
-
-    inventory.generate_low_stock_report()
-
-    if summary["total_products"] > 0 and summary["total_quantity"] > 0:
-        print("✅ Low stock report generated for all products.\n")
-    else:
-        print("⚠️ Warning: No inventory data found or all quantities are zero.\n")
+    try:
+        inventory = Inventory()
+        inventory.load_from_csv("data/products.csv")
+        summary = inventory.get_summary()
+        display_summary(summary)
+        inventory.generate_low_stock_report()
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
-    setup_logger()
-    inventory = Inventory()
-    inventory.load_from_csv("data/products.csv")
-
-    summary = inventory.get_summary()
-    display_summary(summary)
-
-    inventory.generate_low_stock_report()
+    main()
