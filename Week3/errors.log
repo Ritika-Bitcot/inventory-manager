@@ -1,19 +1,19 @@
-ERROR:root:Row 4: invalid literal for int() with base 10: 'abc'
-ERROR:root:Row 5: 1 validation error for Product
+ERROR:root:Type error in row: {'product_id': '3', 'product_name': 'Eraser', 'quantity': 'abc', 'price': '3.50', 'category': '', 'mfg_date': '', 'expiry_date': '', 'purchase_date': '', 'warranty_period': None, 'author': None, 'publication_year': None} - Error: invalid literal for int() with base 10: 'abc'
+ERROR:root:Type error in row: {'product_id': '4', 'product_name': 'Notebook', 'quantity': '15', 'price': '-50.00', 'category': '', 'mfg_date': '', 'expiry_date': '', 'purchase_date': '', 'warranty_period': None, 'author': None, 'publication_year': None} - Error: 1 validation error for Product
 price
   Input should be greater than 0 [type=greater_than, input_value=-50.0, input_type=float]
     For further information visit https://errors.pydantic.dev/2.11/v/greater_than
-ERROR:root:Row 7: 1 validation error for Product
+ERROR:root:Type error in row: {'product_id': '6', 'product_name': 'Ruler', 'quantity': '-2', 'price': '12.00', 'category': '', 'mfg_date': '', 'expiry_date': '', 'purchase_date': '', 'warranty_period': None, 'author': None, 'publication_year': None} - Error: 1 validation error for Product
 quantity
   Input should be greater than or equal to 0 [type=greater_than_equal, input_value=-2, input_type=int]
     For further information visit https://errors.pydantic.dev/2.11/v/greater_than_equal
-ERROR:root:Row 10: 1 validation error for Product
+ERROR:root:Type error in row: {'product_id': '9', 'product_name': 'White Paper', 'quantity': '12', 'price': '-10.00', 'category': '', 'mfg_date': '', 'expiry_date': '', 'purchase_date': '', 'warranty_period': None, 'author': None, 'publication_year': None} - Error: 1 validation error for Product
 price
   Input should be greater than 0 [type=greater_than, input_value=-10.0, input_type=float]
     For further information visit https://errors.pydantic.dev/2.11/v/greater_than
-ERROR:root:Row 16: 1 validation error for FoodProduct
+ERROR:root:Type error in row: {'product_id': '15', 'product_name': 'Invalid Date Food', 'quantity': '5', 'price': '20.00', 'category': 'food', 'mfg_date': '2024-08-01', 'expiry_date': '2024-07-01', 'purchase_date': '', 'warranty_period': '', 'author': '', 'publication_year': ''} - Error: 1 validation error for FoodProduct
   Value error, expiry_date must be after mfg_date [type=value_error, input_value={'product_id': 15, 'produ...iry_date': '2024-07-01'}, input_type=dict]
     For further information visit https://errors.pydantic.dev/2.11/v/value_error
-ERROR:root:Row 17: 1 validation error for FoodProduct
+ERROR:root:Type error in row: {'product_id': '16', 'product_name': 'Expired Food', 'quantity': '5', 'price': '20.00', 'category': 'food', 'mfg_date': '2024-01-01', 'expiry_date': '2023-12-31', 'purchase_date': '', 'warranty_period': '', 'author': '', 'publication_year': ''} - Error: 1 validation error for FoodProduct
   Value error, expiry_date must be after mfg_date [type=value_error, input_value={'product_id': 16, 'produ...iry_date': '2023-12-31'}, input_type=dict]
     For further information visit https://errors.pydantic.dev/2.11/v/value_error

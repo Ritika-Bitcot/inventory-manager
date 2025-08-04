@@ -26,6 +26,18 @@ def main():
 
     inventory.generate_low_stock_report()
 
+    if summary["total_products"] > 0 and summary["total_quantity"] > 0:
+        print("✅ Low stock report generated for all products.\n")
+    else:
+        print("⚠️ Warning: No inventory data found or all quantities are zero.\n")
+
 
 if __name__ == "__main__":
-    main()
+    setup_logger()
+    inventory = Inventory()
+    inventory.load_from_csv("data/products.csv")
+
+    summary = inventory.get_summary()
+    display_summary(summary)
+
+    inventory.generate_low_stock_report()
