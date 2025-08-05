@@ -31,7 +31,7 @@ def register_product_type(category: str):
 class Product(BaseModel):
     product_id: int = Field(..., gt=0)
     product_name: str = Field(..., min_length=3, max_length=50)
-    category: Optional[str]
+    category: Optional[str] = None
     quantity: int = Field(..., ge=0)
     price: float = Field(..., gt=0)
 
