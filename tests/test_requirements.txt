@@ -2,17 +2,12 @@
 pytest>=8.0
 
 # Plugins for pytest
-pytest-cov>=4.0     # for code coverage
-pytest-mock>=3.14   # for mocking objects
-Faker>=24.0         # for generating fake data
+pytest-cov>=4.0    
+pytest-mock>=3.14 
 
 # Linters / formatters
-black               # already in requirements.txt
-ruff                # already in requirements.txt
-
-# Type checking (optional but recommended)
-mypy>=1.7
+black
+ruff       
 
 # Pydantic for validation
 pydantic>=2.0
-python-dateutil
