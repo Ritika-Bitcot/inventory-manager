@@ -246,6 +246,31 @@ python main.py
 It uses modular design and separates logic across multiple files.
 ```
 
+## 🧪 Testing
+This project includes unit tests to ensure code reliability and correctness.
+
+### Tests Added
+tests/test_models.py: Contains test cases for validating product models and related logic.
+
+### tests/test_requirements.txt: 
+Lists dependencies required to run the tests separately.
+
+Running Tests
+### Checkout the branch:
+
+```
+git checkout week4_day1
+```
+### Install test dependencies:
+
+```
+pip install -r tests/test_requirements.txt
+```
+### Run tests using pytest:
+
+```
+pytest tests/test_models.py
+```
 
 # 🧑‍💻 Who Is This For?
 Beginners who want practical Python skills
@@ -293,33 +318,6 @@ venv\Scripts\activate        # Windows
 ```
 deactivate
 ```
-
-## 🧪 Testing
-This project includes unit tests to ensure code reliability and correctness.
-
-### Tests Added
-tests/test_models.py: Contains test cases for validating product models and related logic.
-
-### tests/test_requirements.txt: 
-Lists dependencies required to run the tests separately.
-
-Running Tests
-### Checkout the branch:
-
-```
-git checkout week4_day1
-```
-### Install test dependencies:
-
-```
-pip install -r tests/test_requirements.txt
-```
-### Run tests using pytest:
-
-```
-pytest tests/test_models.py
-```
-
 
 # 📩 Feedback
 If you spot any bugs or want to suggest improvements, feel free to open an issue or submit a pull request.
