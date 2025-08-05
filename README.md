@@ -23,6 +23,10 @@ Whether you're new to Python or want to structure your learning with best practi
 
 ```
 inventory-manager/
+├── tests/
+│   ├── test_models.py
+│   └── test_requirements.txt
+
 ├── Week1&2/
 │   ├── Control_Flow/
 │   │   ├── conditional.py
@@ -289,6 +293,33 @@ venv\Scripts\activate        # Windows
 ```
 deactivate
 ```
+
+## 🧪 Testing
+This project includes unit tests to ensure code reliability and correctness.
+
+### Tests Added
+tests/test_models.py: Contains test cases for validating product models and related logic.
+
+### tests/test_requirements.txt: 
+Lists dependencies required to run the tests separately.
+
+Running Tests
+### Checkout the branch:
+
+```
+git checkout week4_day1
+```
+### Install test dependencies:
+
+```
+pip install -r tests/test_requirements.txt
+```
+### Run tests using pytest:
+
+```
+pytest tests/test_models.py
+```
+
 
 # 📩 Feedback
 If you spot any bugs or want to suggest improvements, feel free to open an issue or submit a pull request.
