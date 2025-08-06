@@ -1,0 +1,18 @@
+# .coveragerc
+
+[run]
+omit =
+    /usr/lib/*
+    */site-packages/*
+    tests/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+
+    # Don't complain about abstract methods, etc.
+    raise NotImplementedError
+
+[html]
+directory = coverage_html_report

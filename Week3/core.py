@@ -3,8 +3,9 @@ import logging
 from datetime import datetime
 from typing import List
 
-from models import PRODUCT_CLASS_MAP, FoodProduct, Product
 from pydantic import ValidationError
+
+from Week3.models import PRODUCT_CLASS_MAP, FoodProduct, Product
 
 
 class Inventory:
@@ -70,12 +71,11 @@ class Inventory:
                         self.products.append(product)
                     else:
                         logging.warning(f"Row {idx} skipped due to invalid data.")
-        except (ValidationError, ValueError, TypeError) as e:
-            logging.error(f"Row {idx}: {e}")
         except FileNotFoundError:
             logging.error(f"CSV file '{csv_file}' not found.")
-        except Exception as e:
-            logging.error(f"Unexpected error reading CSV '{csv_file}': {e}")
+        except (ValidationError, ValueError, TypeError) as e:
+            idx_info = f"Row {idx}" if "idx" in locals() else "During reading CSV"
+            logging.error(f"{idx_info}: {e}")
 
     def generate_low_stock_report(
         self, threshold: int = 10, output_file: str = "low_stock_report.txt"
