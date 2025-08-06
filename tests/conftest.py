@@ -49,8 +49,11 @@ def electronic_product() -> ElectronicProduct:
     Fixture that provides an ElectronicProduct instance for testing purposes.
 
     Returns:
-        ElectronicProduct: An instance with id 3, name "Phone", quantity 2, price 1000.0,
-            purchase date of January 1, 2024, and a warranty period of 12 months.
+        ElectronicProduct:
+        An instance with id 3
+        name "Phone", quantity 2, price 1000.0,
+        purchase date of January 1, 2024
+        and a warranty period of 12 months.
     """
 
     return ElectronicProduct(
@@ -69,8 +72,9 @@ def book_product() -> BookProduct:
     Fixture that provides a BookProduct instance for testing purposes.
 
     Returns:
-        BookProduct: A BookProduct instance with id 4, name "Clean Code", quantity 7, price 800.0,
-            author "Robert Martin", and publication year 2020.
+        BookProduct: A BookProduct instance with id 4
+        name "Clean Code", quantity 7, price 800.0,
+        author "Robert Martin", and publication year 2020.
     """
     return BookProduct(
         product_id=4,
