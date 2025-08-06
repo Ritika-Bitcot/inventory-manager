@@ -48,10 +48,12 @@ class Inventory:
             return product_class(**base_data, **extra_data)
         except KeyError as e:
             logging.error(f"Missing required field {e} in row: {row}")
-        except (ValueError, TypeError) as e:
-            logging.error(f"Type error in row: {row} - Error: {e}")
+
         except ValidationError as e:
             logging.error(f"Validation error in row: {row} - {e}")
+
+        except (ValueError, TypeError) as e:
+            logging.error(f"Type error in row: {row} - Error: {e}")
         except Exception as e:
             logging.error(f"Unexpected error processing row: {row} - {e}")
 

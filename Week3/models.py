@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from dateutil.relativedelta import relativedelta
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # Registry
 PRODUCT_CLASS_MAP = {}
@@ -35,6 +35,8 @@ class Product(BaseModel):
     quantity: int = Field(..., ge=0)
     price: float = Field(..., gt=0)
 
+    model_config = ConfigDict(extra="forbid")
+
     def get_total_value(self) -> float:
         """
         Returns the total value of the product based on its price and quantity.
@@ -48,6 +50,8 @@ class FoodProduct(Product):
     category: str = "food"
     mfg_date: datetime
     expiry_date: datetime
+
+    model_config = ConfigDict(extra="forbid")
 
     @model_validator(mode="after")
     def check_expiry_after_mfg(self) -> Product:
@@ -66,6 +70,8 @@ class ElectronicProduct(Product):
     purchase_date: datetime
     warranty_period: int = Field(..., ge=0)
 
+    model_config = ConfigDict(extra="forbid")
+
     def get_warranty_end_date(self) -> datetime:
         """
         Calculates the warranty end date based on the purchase date.
@@ -78,3 +84,5 @@ class BookProduct(Product):
     category: str = "book"
     author: str = Field(..., min_length=3)
     publication_year: int = Field(..., ge=1000, le=datetime.now().year)
+
+    model_config = ConfigDict(extra="forbid")

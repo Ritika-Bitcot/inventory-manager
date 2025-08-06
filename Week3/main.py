@@ -1,5 +1,5 @@
-from core import Inventory
-from utils import setup_logger
+from Week3.core import Inventory
+from Week3.utils import setup_logger
 
 
 def display_summary(summary: dict) -> None:
