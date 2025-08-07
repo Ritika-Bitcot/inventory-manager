@@ -332,3 +332,43 @@ def test_generate_low_stock_generic_exception(
     with caplog.at_level("ERROR"):
         inventory_with_products.generate_low_stock_report()
     assert "Error writing low stock report" in caplog.text
+
+
+def test_food_product_with_valid_dates_in_summary() -> None:
+    """
+    Tests that a food product with valid dates is included in the summary.
+    """
+    inv = Inventory()
+    valid_food = FoodProduct(
+        product_id=10,
+        product_name="Fresh Milk",
+        quantity=10,
+        price=5.0,
+        mfg_date=datetime.now() - timedelta(days=1),
+        expiry_date=datetime.now() + timedelta(days=10),
+    )
+    inv.products.append(valid_food)
+    summary = inv.get_summary()
+    assert summary["total_products"] == 1
+    assert summary["total_quantity"] == 10
+
+
+def test_low_stock_excludes_expired_food(tmp_path: Path) -> None:
+    """
+    Tests that expired food products are excluded from the low stock report.
+    """
+    inv = Inventory()
+    expired = FoodProduct(
+        product_id=2,
+        product_name="Expired Bread",
+        quantity=2,
+        price=20.0,
+        mfg_date=datetime.now() - timedelta(days=10),
+        expiry_date=datetime.now() - timedelta(days=1),
+    )
+    inv.products.append(expired)
+
+    file_path = tmp_path / "report.txt"
+    inv.generate_low_stock_report(threshold=5, output_file=str(file_path))
+    content = file_path.read_text()
+    assert "Expired Bread" not in content

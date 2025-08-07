@@ -84,10 +84,15 @@ class Inventory:
     ) -> None:
         """
         Generates a report of products below the given stock threshold.
+        Excludes expired FoodProducts.
         """
         try:
+            now = datetime.now()
             low_stock_items: List[Product] = [
-                p for p in self.products if p.quantity < threshold
+                p
+                for p in self.products
+                if p.quantity < threshold
+                and not (isinstance(p, FoodProduct) and p.expiry_date < now)
             ]
 
             with open(output_file, "w", encoding="utf-8") as f:
