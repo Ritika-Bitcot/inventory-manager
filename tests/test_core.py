@@ -50,6 +50,29 @@ def test_create_product_with_wrong_type(caplog: pytest.LogCaptureFixture) -> Non
     assert "Type error" in caplog.text
 
 
+def test_create_product_unexpected_exception(caplog: pytest.LogCaptureFixture) -> None:
+    """Test unexpected exception in create_product_from_row."""
+    inv = Inventory()
+
+    valid_row = {
+        "product_id": "1",
+        "product_name": "Pen",
+        "category": "stationery",
+        "quantity": "10",
+        "price": "5.0",
+    }
+
+    with patch(
+        "Week3.models.Product.__init__", side_effect=RuntimeError("unexpected failure")
+    ):
+        with caplog.at_level("ERROR"):
+            product = inv.create_product_from_row(valid_row)
+
+    assert product is None
+    assert "Unexpected error processing row" in caplog.text
+    assert "unexpected failure" in caplog.text
+
+
 def test_load_valid_csv_file(tmp_path: Path, sample_product: Product) -> None:
     """Test loading a valid CSV file with one product."""
     inv = Inventory()
@@ -84,6 +107,26 @@ def test_generate_low_stock_file(
     content = file_path.read_text()
     assert "Milk" in content
     assert "Phone" in content
+
+
+def test_generate_low_stock_report_with_mock_write(
+    mocker, inventory_with_products
+) -> None:
+    """Test generate_low_stock_report using mock to capture write calls."""
+    mock_file = mocker.mock_open()
+    mocker.patch("builtins.open", mock_file)
+
+    inventory_with_products.generate_low_stock_report(
+        threshold=6, output_file="dummy.txt"
+    )
+
+    handle = mock_file()
+    # Assert that write was called with expected content
+    write_calls = [call.args[0] for call in handle.write.call_args_list]
+
+    combined_content = "".join(write_calls)
+    assert "Milk" in combined_content
+    assert "Phone" in combined_content
 
 
 def test_generate_low_stock_with_no_low_items(
@@ -190,6 +233,34 @@ def test_create_product_with_validation_error(caplog: pytest.LogCaptureFixture) 
         product = inv.create_product_from_row(row)
     assert product is None
     assert "Validation error" in caplog.text
+
+
+def test_summary_with_zero_total_quantity(caplog: pytest.LogCaptureFixture) -> None:
+    """Test get_summary logs warning when total quantity is zero."""
+    inv = Inventory()
+
+    inv.products = [
+        Product(
+            product_id=1,
+            product_name="Item1",
+            category="stationery",
+            quantity=0,
+            price=10.0,
+        ),
+        Product(
+            product_id=2,
+            product_name="Item2",
+            category="stationery",
+            quantity=0,
+            price=20.0,
+        ),
+    ]
+
+    with caplog.at_level("WARNING"):
+        summary = inv.get_summary()
+
+    assert summary["total_quantity"] == 0
+    assert "Total quantity is zero — all products may be out of stock." in caplog.text
 
 
 def test_create_product_with_extra_field(caplog: pytest.LogCaptureFixture) -> None:
