@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from dateutil.relativedelta import relativedelta
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # Registry
 PRODUCT_CLASS_MAP = {}
@@ -48,6 +48,8 @@ class FoodProduct(Product):
     category: str = "food"
     mfg_date: datetime
     expiry_date: datetime
+
+    model_config = ConfigDict(extra="forbid")
 
     @model_validator(mode="after")
     def check_expiry_after_mfg(self) -> Product:

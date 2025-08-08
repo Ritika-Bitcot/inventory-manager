@@ -24,6 +24,10 @@ Whether you're new to Python or want to structure your learning with best practi
 ```
 inventory-manager/
 ├── tests/
+│   ├── conftest.py
+│   ├── test_core.py
+│   ├── test_main.py
+│   ├── test_models_using_fixtures.py
 │   ├── test_models.py
 │   └── test_requirements.txt
 
@@ -256,11 +260,6 @@ tests/test_models.py: Contains test cases for validating product models and rela
 Lists dependencies required to run the tests separately.
 
 Running Tests
-### Checkout the branch:
-
-```
-git checkout week4_day1
-```
 ### Install test dependencies:
 
 ```
@@ -271,6 +270,133 @@ pip install -r tests/test_requirements.txt
 ```
 pytest tests/test_models.py
 ```
+
+
+### 🧰 Setup for Testing (Step-by-Step)
+1. ✅ Switch to the appropriate branch
+```
+git checkout week4_day1
+```
+2. ✅ Activate your virtual environment
+```
+source venv/bin/activate      # Linux/macOS
+venv\Scripts\activate         # Windows
+```
+3. ✅ Install test dependencies
+```
+pip install -r tests/test_requirements.txt
+```
+This installs:
+
+pytest – Unit testing framework
+
+pytest-cov – Code coverage plugin for pytest
+
+### ▶️ How to Run Tests
+✅ Run all tests
+```
+pytest
+```
+✅ Run a specific test file
+
+```
+pytest tests/test_core.py
+```
+
+✅ Run tests with detailed output
+```
+pytest -v
+```
+✅ Show print/log output while testing
+```
+pytest -s
+```
+### 🧩 Using Fixtures (conftest.py)
+Fixtures are reusable setups shared between tests. They're defined in tests/conftest.py.
+
+You can use them like this:
+
+```
+def test_product_model_valid(valid_product_data):
+    product = ProductModel(**valid_product_data)
+    assert product.name == "Pen"
+You don’t need to import fixtures – pytest discovers and injects them automatically based on parameter names.
+```
+
+### 📊 Checking Code Coverage
+You can verify how much of your code is covered by the tests using pytest-cov.
+
+✅ Run with coverage
+```
+pytest --cov=Week3
+```
+✅ Show missing lines in terminal
+```
+pytest --cov=Week3 --cov-report=term-missing
+```
+✅ Generate HTML coverage report
+```
+pytest --cov=Week3 --cov-report=html
+```
+Then open this in your browser:
+
+```
+htmlcov/index.html
+```
+✅ Example Output
+```
+==================== test session starts ====================
+collected 10 items
+
+tests/test_core.py ....................              [100%]
+
+---------- coverage: platform linux, Python 3.10 ----------
+Name               Stmts   Miss  Cover   Missing
+----------------------------------------------
+Week3/core.py         45      0   100%
+Week3/models.py       12      0   100%
+Week3/main.py         10      0   100%
+----------------------------------------------
+TOTAL                 67      0   100%
+
+================ 10 passed in 0.45s ==========================
+```
+
+### 🔁 Test Workflow Summary
+
+# Activate virtual environment
+```
+source venv/bin/activate
+```
+# Install test dependencies
+```
+pip install -r tests/test_requirements.txt
+```
+# Run all tests
+```
+pytest
+```
+# Optional: Check test coverage
+```
+pytest --cov=Week3 --cov-report=term-missing
+```
+
+# 🛠️ Common Issues & Fixes
+### Problem	Solution
+**ModuleNotFoundError**	Make sure you're in the root project directory, or use python -m pytest
+Coverage not shown	Make sure you're passing --cov=Week3
+**ImportError** from Week3	Ensure __init__.py exists in Week3/
+
+# 🧑‍💻 Who Should Run Tests?
+✅ Everyone using this project should run the tests — especially when:
+
+You modify or add features
+
+You want to verify things didn’t break
+
+You're learning testing with clean code and SRP
+
+
 
 # 🧑‍💻 Who Is This For?
 Beginners who want practical Python skills

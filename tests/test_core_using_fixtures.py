@@ -1,298 +1,374 @@
-import builtins
-import logging
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from pathlib import Path
+from typing import Any
+from unittest.mock import mock_open, patch
+
+import pytest
 
 from Week3.core import Inventory
 from Week3.models import FoodProduct, Product
 
 
-def test_create_product_from_row_missing_field(inventory_with_products) -> None:
-    """
-    Tests that a product can't be created from a row that is missing a required field.
-    """
+def test_create_valid_product_row(sample_product: Product) -> None:
+    """Test creating a valid Product from a row dictionary."""
+    inv = Inventory()
     row = {
-        "product_name": "Missing ID",
-        "category": "stationery",
-        "quantity": "10",
-        "price": "5.0",
+        "product_id": str(sample_product.product_id),
+        "product_name": sample_product.product_name,
+        "category": sample_product.category,
+        "quantity": str(sample_product.quantity),
+        "price": str(sample_product.price),
     }
-    product = inventory_with_products.create_product_from_row(row)
-    assert product is None
+    product = inv.create_product_from_row(row)
+    assert isinstance(product, Product)
+    assert product.product_id == sample_product.product_id
 
 
-def test_create_product_from_row_invalid_type(inventory_with_products) -> None:
-    """
-    Tests that a product can't be created from a row with invalid type.
-    """
-    row = {
-        "product_id": "1",
-        "product_name": "Invalid Price",
-        "category": "stationery",
-        "quantity": "10",
-        "price": "not-a-number",
-    }
-    product = inventory_with_products.create_product_from_row(row)
-    assert product is None
-
-
-def test_create_product_from_row_validation_error(inventory_with_products) -> None:
-    """
-    Tests that a product can't be created from a row that doesn't pass validation rules.
-    """
-
-    row = {
-        "product_id": "0",
-        "product_name": "Invalid Product",
-        "category": "stationery",
-        "quantity": "10",
-        "price": "5.0",
-    }
-    product = inventory_with_products.create_product_from_row(row)
-    assert product is None
-
-
-def test_create_product_from_row_key_error(inventory_with_products, caplog) -> None:
-    """
-    Tests KeyError is logged when a required key is missing from the row.
-    """
-    row = {
-        "product_name": "No ID Key",
-        "category": "stationery",
-        "quantity": "10",
-        "price": "5.0",
-    }
-    with caplog.at_level(logging.ERROR):
-        product = inventory_with_products.create_product_from_row(row)
-
+def test_create_product_with_missing_field(caplog: pytest.LogCaptureFixture) -> None:
+    """Test logging error when required fields are missing in row."""
+    inv = Inventory()
+    row = {"product_name": "Test"}
+    with caplog.at_level("ERROR"):
+        product = inv.create_product_from_row(row)
     assert product is None
     assert "Missing required field" in caplog.text
 
 
-def test_load_from_csv_file_not_found(inventory_with_products, caplog) -> None:
-    """
-    Tests that an error is logged when trying to load a CSV file that doesn't exist.
-    """
-    with caplog.at_level(logging.ERROR):
-        inventory_with_products.load_from_csv("non_existent_file.csv")
-    assert any(
-        "CSV file 'non_existent_file.csv' not found." in rec.message
-        for rec in caplog.records
-    )
-
-
-def test_load_from_csv_with_invalid_row(
-    tmp_path, inventory_with_products, caplog
-) -> None:
-    """
-    Tests that an error is logged when trying to load a CSV
-    file with an invalid row (missing required field).
-    """
-    csv_content = (
-        "product_id,product_name,category,quantity,price\n"
-        "1,Valid Product,stationery,10,5.0\n"
-        ",Invalid Product,stationery,10,5.0\n"
-    )
-
-    csv_file = tmp_path / "test.csv"
-    csv_file.write_text(csv_content)
-
-    with caplog.at_level(logging.ERROR):
-        inventory_with_products.load_from_csv(str(csv_file))
-
-    # Match actual error pattern from core.py
-    assert any("Type error in row" in rec.message for rec in caplog.records)
-
-
-def test_load_from_csv_with_validation_error(
-    tmp_path, inventory_with_products, caplog
-) -> None:
-    csv_content = (
-        "product_id,product_name,category,quantity,price\n"
-        "0,Invalid Product,stationery,10,5.0\n"
-    )
-    csv_file = tmp_path / "validation_test.csv"
-    csv_file.write_text(csv_content)
-
-    with caplog.at_level(logging.ERROR):
-        inventory_with_products.load_from_csv(str(csv_file))
-
-    # Accept either type or validation error prefix
-    assert any(
-        phrase in caplog.text.lower()
-        for phrase in ["type error in row", "validation error in row"]
-    )
-
-
-def test_generate_low_stock_report_file_not_found(
-    inventory_with_products, tmp_path, caplog
-) -> None:
-    """
-    Tests that an error is logged when trying to generate a low stock
-    report to a file location that doesn't exist. The test mocks the
-    `open` function to raise a `FileNotFoundError` and verifies that
-    the appropriate error message is logged.
-    """
-
-    def raise_fnf(*args, **kwargs) -> None:
-        """
-        A function that raises a FileNotFoundError when called.
-        """
-        raise FileNotFoundError()
-
-    output_file = tmp_path / "output.txt"
-    original_open = builtins.open
-    try:
-        builtins.open = raise_fnf
-        with caplog.at_level(logging.ERROR):
-            inventory_with_products.generate_low_stock_report(
-                output_file=str(output_file)
-            )
-        assert any("Output directory for file" in rec.message for rec in caplog.records)
-    finally:
-        builtins.open = original_open
-
-
-def test_generate_low_stock_report_file_not_found_explicit(
-    inventory_with_products, caplog
-) -> None:
-    with patch("builtins.open", side_effect=FileNotFoundError("Cannot open file")):
-        with caplog.at_level(logging.ERROR):
-            # Use keyword arguments to avoid positional conflict
-            inventory_with_products.generate_low_stock_report(
-                threshold=0, output_file="dummy_path.txt"
-            )
-        assert "Output directory for file" in caplog.text
-
-
-def test_generate_low_stock_report_generic_exception(
-    inventory_with_products, caplog
-) -> None:
-    def raise_exception(*args, **kwargs):
-        raise Exception("Some unexpected error")
-
-    original_open = builtins.open
-    builtins.open = raise_exception
-    try:
-        with caplog.at_level(logging.ERROR):
-            inventory_with_products.generate_low_stock_report("any_path.txt")
-        assert "Error writing low stock report" in caplog.text
-    finally:
-        builtins.open = original_open
-
-
-def test_get_summary_empty_inventory(caplog) -> None:
-    """
-    Tests that a warning is logged when generating a summary from an empty inventory.
-    """
-    inventory = Inventory()
-    with caplog.at_level(logging.WARNING):
-        summary = inventory.get_summary()
-    assert summary["total_products"] == 0
-    assert "Summary values will all be zero" in caplog.text
-
-
-def test_get_summary_all_expired_food_products(caplog) -> None:
-    """
-    Tests that a warning is logged when generating a summary from an inventory
-    where all FoodProducts are expired.
-    """
-    inventory = Inventory()
-    expired_food = FoodProduct(
-        product_id=10,
-        product_name="Expired Milk",
-        quantity=5,
-        price=20.0,
-        mfg_date=datetime.now() - timedelta(days=10),
-        expiry_date=datetime.now() - timedelta(days=1),
-    )
-    inventory.products.append(expired_food)
-
-    with caplog.at_level(logging.WARNING):
-        summary = inventory.get_summary()
-
-    assert summary["total_products"] == 0
-    assert "Summary values will all be zero" in caplog.text
-
-
-def test_get_summary_total_quantity_zero(caplog) -> None:
-    """
-    Tests that a warning is logged when generating a summary from an inventory
-    where all products have zero quantity.
-    """
-    inventory = Inventory()
-    product = Product(
-        product_id=1, product_name="Zero Qty", quantity=0, price=100.0, category="misc"
-    )
-    inventory.products.append(product)
-
-    with caplog.at_level(logging.WARNING):
-        summary = inventory.get_summary()
-
-    assert summary["total_quantity"] == 0
-    assert "all products may be out of stock" in caplog.text
-
-
-def test_get_summary_highest_sale_exception(
-    monkeypatch, inventory_with_products, caplog
-) -> None:
-    """
-    Tests that a summary still contains valid data when an error is raised while
-    calculating the highest sale. The exception is logged at the ERROR level.
-    """
-
-    def raise_exc(*args, **kwargs):
-        raise Exception("max error")
-
-    monkeypatch.setattr("builtins.max", raise_exc)
-
-    with caplog.at_level(logging.ERROR):
-        summary = inventory_with_products.get_summary()
-
-    assert summary["hs_name"] == "N/A"
-    assert summary["hs_amt"] == 0.0
-    assert "Error calculating highest sale" in caplog.text
-
-
-def test_create_product_from_row_validation_error_explicit(
-    inventory_with_products,
-) -> None:
-    # Supply a row that triggers ValidationError,
-    # e.g. product_id = 0 (which fails pydantic validation)
+def test_create_product_with_wrong_type(caplog: pytest.LogCaptureFixture) -> None:
+    """Test logging error when product_id cannot be converted to int."""
+    inv = Inventory()
     row = {
-        "product_id": "0",
-        "product_name": "Invalid Product",
+        "product_id": "abc",
+        "product_name": "Test",
         "category": "stationery",
         "quantity": "10",
         "price": "5.0",
     }
-    product = inventory_with_products.create_product_from_row(row)
+    with caplog.at_level("ERROR"):
+        product = inv.create_product_from_row(row)
     assert product is None
+    assert "Type error" in caplog.text
 
 
-def test_load_from_csv_raises_error_outside_loop(
-    inventory_with_products, tmp_path, caplog
+def test_create_product_unexpected_exception(caplog: pytest.LogCaptureFixture) -> None:
+    """Test unexpected exception in create_product_from_row."""
+    inv = Inventory()
+
+    valid_row = {
+        "product_id": "1",
+        "product_name": "Pen",
+        "category": "stationery",
+        "quantity": "10",
+        "price": "5.0",
+    }
+
+    with patch(
+        "Week3.models.Product.__init__", side_effect=RuntimeError("unexpected failure")
+    ):
+        with caplog.at_level("ERROR"):
+            product = inv.create_product_from_row(valid_row)
+
+    assert product is None
+    assert "Unexpected error processing row" in caplog.text
+    assert "unexpected failure" in caplog.text
+
+
+def test_load_valid_csv_file(tmp_path: Path, sample_product: Product) -> None:
+    """Test loading a valid CSV file with one product."""
+    inv = Inventory()
+    file_path = tmp_path / "products.csv"
+    file_content = (
+        "product_id,product_name,category,quantity,price\n"
+        f"{sample_product.product_id},{sample_product.product_name},"
+        f"{sample_product.category},{sample_product.quantity},{sample_product.price}\n"
+    )
+    file_path.write_text(file_content)
+    inv.load_from_csv(str(file_path))
+    assert len(inv.products) == 1
+    assert inv.products[0].product_name == sample_product.product_name
+
+
+def test_load_missing_csv_file(caplog: pytest.LogCaptureFixture) -> None:
+    """Test logging error when file does not exist."""
+    inv = Inventory()
+    with caplog.at_level("ERROR"):
+        inv.load_from_csv("missing.csv")
+    assert "not found" in caplog.text
+
+
+def test_generate_low_stock_file(
+    tmp_path: Path, inventory_with_products: Inventory
 ) -> None:
-    # Patch open to simulate an error during reading (outside row processing)
-    with patch("builtins.open", side_effect=ValueError("Read error")):
-        with caplog.at_level(logging.ERROR):
-            inventory_with_products.load_from_csv(str(tmp_path / "dummy.csv"))
-        assert "Read error" in caplog.text
+    """Test generating low stock report with some products under threshold."""
+    file_path = tmp_path / "low_stock.txt"
+    inventory_with_products.generate_low_stock_report(
+        threshold=6, output_file=str(file_path)
+    )
+    content = file_path.read_text()
+    assert "Milk" in content
+    assert "Phone" in content
 
 
-def test_generate_low_stock_report_file_not_found_and_other_errors(
-    inventory_with_products, caplog
+def test_generate_low_stock_report_with_mock_write(
+    mocker, inventory_with_products
 ) -> None:
-    # Patch open to raise FileNotFoundError and other exceptions explicitly
-    with patch("builtins.open", side_effect=FileNotFoundError("Cannot open file")):
-        with caplog.at_level(logging.ERROR):
-            inventory_with_products.generate_low_stock_report(output_file="dummy.txt")
-        assert "Output directory for file" in caplog.text
+    """Test generate_low_stock_report using mock to capture write calls."""
+    mock_file = mocker.mock_open()
+    mocker.patch("builtins.open", mock_file)
 
-    def raise_other_exc(*args, **kwargs):
-        raise RuntimeError("Other error")
+    inventory_with_products.generate_low_stock_report(
+        threshold=6, output_file="dummy.txt"
+    )
 
-    with patch("builtins.open", side_effect=raise_other_exc):
-        with caplog.at_level(logging.ERROR):
-            inventory_with_products.generate_low_stock_report(output_file="dummy.txt")
-        assert "Error writing low stock report" in caplog.text
+    handle = mock_file()
+    # Assert that write was called with expected content
+    write_calls = [call.args[0] for call in handle.write.call_args_list]
+
+    combined_content = "".join(write_calls)
+    assert "Milk" in combined_content
+    assert "Phone" in combined_content
+
+
+def test_generate_low_stock_with_no_low_items(
+    tmp_path: Path, inventory_with_products: Inventory, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Test report when all products have sufficient stock."""
+    file_path = tmp_path / "low_stock.txt"
+    with caplog.at_level("INFO"):
+        inventory_with_products.generate_low_stock_report(
+            threshold=0, output_file=str(file_path)
+        )
+    content = file_path.read_text()
+    assert "All products have sufficient stock" in content
+    assert "No products found below" in caplog.text
+
+
+def test_generate_low_stock_file_error(
+    monkeypatch: Any,
+    inventory_with_products: Inventory,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test logging error when file writing fails."""
+
+    def raise_ioerror(*args, **kwargs):
+        raise FileNotFoundError("Fake error")
+
+    monkeypatch.setattr("builtins.open", raise_ioerror)
+    with caplog.at_level("ERROR"):
+        inventory_with_products.generate_low_stock_report()
+    assert "not found" in caplog.text
+
+
+def test_inventory_total_value(inventory_with_products: Inventory) -> None:
+    """Test calculating total inventory value."""
+    total = inventory_with_products.get_total_inventory()
+    expected = sum(p.get_total_value() for p in inventory_with_products.products)
+    assert total == expected
+
+
+def test_inventory_summary_empty(caplog: pytest.LogCaptureFixture) -> None:
+    """Test summary when inventory has no products."""
+    inv = Inventory()
+    with caplog.at_level("WARNING"):
+        summary = inv.get_summary()
+    assert summary["total_products"] == 0
+    assert summary["total_quantity"] == 0
+    assert summary["hs_name"] == "N/A"
+    assert summary["total_value"] == 0.0
+    assert "No valid (non-expired) products" in caplog.text
+
+
+def test_inventory_summary_with_products(inventory_with_products: Inventory) -> None:
+    """Test valid summary output with non-empty inventory."""
+    summary = inventory_with_products.get_summary()
+    assert summary["total_products"] > 0
+    assert summary["total_quantity"] > 0
+    assert summary["total_value"] > 0
+    assert summary["hs_name"] != "N/A"
+    assert summary["hs_amt"] > 0
+
+
+def test_inventory_summary_with_expired_food() -> None:
+    """Test that expired food products are excluded in summary."""
+    inv = Inventory()
+    expired = FoodProduct(
+        product_id=1,
+        product_name="Expired Milk",
+        quantity=10,
+        price=50.0,
+        mfg_date=datetime.now() - timedelta(days=10),
+        expiry_date=datetime.now() - timedelta(days=1),
+    )
+    inv.products.append(expired)
+    summary = inv.get_summary()
+    assert summary["total_products"] == 0
+    assert summary["total_quantity"] == 0
+
+
+def test_load_csv_with_mock_open() -> None:
+    """Test loading CSV using mock_open to avoid real files."""
+    csv_data = (
+        "product_id,product_name,category,quantity,price\n1,Pen,stationery,10,5.0\n"
+    )
+    inv = Inventory()
+    with patch("builtins.open", mock_open(read_data=csv_data)) as mock_file:
+        inv.load_from_csv("dummy.csv")
+    assert len(inv.products) == 1
+    mock_file.assert_called_once_with("dummy.csv", newline="")
+
+
+def test_create_product_with_validation_error(caplog: pytest.LogCaptureFixture) -> None:
+    """Test logging validation error when date format is invalid."""
+    inv = Inventory()
+    row = {
+        "product_id": "1",
+        "product_name": "Milk",
+        "category": "food",
+        "quantity": "10",
+        "price": "5.0",
+        "mfg_date": "not-a-date",
+        "expiry_date": "2025-01-01",
+    }
+    with caplog.at_level("ERROR"):
+        product = inv.create_product_from_row(row)
+    assert product is None
+    assert "Validation error" in caplog.text
+
+
+def test_summary_with_zero_total_quantity(caplog: pytest.LogCaptureFixture) -> None:
+    """Test get_summary logs warning when total quantity is zero."""
+    inv = Inventory()
+
+    inv.products = [
+        Product(
+            product_id=1,
+            product_name="Item1",
+            category="stationery",
+            quantity=0,
+            price=10.0,
+        ),
+        Product(
+            product_id=2,
+            product_name="Item2",
+            category="stationery",
+            quantity=0,
+            price=20.0,
+        ),
+    ]
+
+    with caplog.at_level("WARNING"):
+        summary = inv.get_summary()
+
+    assert summary["total_quantity"] == 0
+    assert "Total quantity is zero — all products may be out of stock." in caplog.text
+
+
+def test_create_product_with_extra_field(caplog: pytest.LogCaptureFixture) -> None:
+    """Test logging validation error when extra unexpected field is present."""
+    inv = Inventory()
+    row = {
+        "product_id": "1",
+        "product_name": "Milk",
+        "category": "food",
+        "quantity": "10",
+        "price": "5.0",
+        "mfg_date": "2024-01-01",
+        "expiry_date": "2025-01-01",
+        "extra_field": "unexpected",
+    }
+    with caplog.at_level("ERROR"):
+        product = inv.create_product_from_row(row)
+    assert product is None
+    assert "Validation error in row" in caplog.text
+
+
+def test_load_csv_with_invalid_row(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Test that invalid rows in CSV do not get added to products."""
+    file_path = tmp_path / "products.csv"
+    file_path.write_text(
+        "product_id,product_name,category,quantity,price\n"
+        "1,Valid,stationery,10,5.0\n"
+        "2,Invalid,stationery,not_a_number,5.0\n"
+    )
+    inv = Inventory()
+    with caplog.at_level("ERROR"):
+        inv.load_from_csv(str(file_path))
+    assert len(inv.products) == 1
+    assert "Type error" in caplog.text
+
+
+def test_summary_max_raises_error(
+    caplog: pytest.LogCaptureFixture, inventory_with_products: Inventory
+) -> None:
+    """Test logging error if max() fails while calculating highest sale."""
+    with patch("builtins.max", side_effect=Exception("max failed")):
+        with caplog.at_level("ERROR"):
+            inventory_with_products.get_summary()
+    assert "Error calculating highest sale" in caplog.text
+
+
+def test_load_csv_with_exception(caplog: pytest.LogCaptureFixture) -> None:
+    """Test logging unexpected exception during file reading."""
+    inv = Inventory()
+    with patch("builtins.open", side_effect=ValueError("fake error")):
+        with caplog.at_level("ERROR"):
+            inv.load_from_csv("file.csv")
+    assert "fake error" in caplog.text
+
+
+def test_generate_low_stock_generic_exception(
+    monkeypatch: Any,
+    inventory_with_products: Inventory,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test logging generic error during report file writing."""
+
+    def raise_generic(*args: Any, **kwargs: Any) -> None:
+        raise Exception("Something went wrong")
+
+    monkeypatch.setattr("builtins.open", raise_generic)
+    with caplog.at_level("ERROR"):
+        inventory_with_products.generate_low_stock_report()
+    assert "Error writing low stock report" in caplog.text
+
+
+def test_food_product_with_valid_dates_in_summary() -> None:
+    """
+    Tests that a food product with valid dates is included in the summary.
+    """
+    inv = Inventory()
+    valid_food = FoodProduct(
+        product_id=10,
+        product_name="Fresh Milk",
+        quantity=10,
+        price=5.0,
+        mfg_date=datetime.now() - timedelta(days=1),
+        expiry_date=datetime.now() + timedelta(days=10),
+    )
+    inv.products.append(valid_food)
+    summary = inv.get_summary()
+    assert summary["total_products"] == 1
+    assert summary["total_quantity"] == 10
+
+
+def test_low_stock_excludes_expired_food(tmp_path: Path) -> None:
+    """
+    Tests that expired food products are excluded from the low stock report.
+    """
+    inv = Inventory()
+    expired = FoodProduct(
+        product_id=2,
+        product_name="Expired Bread",
+        quantity=2,
+        price=20.0,
+        mfg_date=datetime.now() - timedelta(days=10),
+        expiry_date=datetime.now() - timedelta(days=1),
+    )
+    inv.products.append(expired)
+
+    file_path = tmp_path / "report.txt"
+    inv.generate_low_stock_report(threshold=5, output_file=str(file_path))
+    content = file_path.read_text()
+    assert "Expired Bread" not in content
