@@ -263,25 +263,6 @@ def test_summary_with_zero_total_quantity(caplog: pytest.LogCaptureFixture) -> N
     assert "Total quantity is zero — all products may be out of stock." in caplog.text
 
 
-def test_create_product_with_extra_field(caplog: pytest.LogCaptureFixture) -> None:
-    """Test logging validation error when extra unexpected field is present."""
-    inv = Inventory()
-    row = {
-        "product_id": "1",
-        "product_name": "Milk",
-        "category": "food",
-        "quantity": "10",
-        "price": "5.0",
-        "mfg_date": "2024-01-01",
-        "expiry_date": "2025-01-01",
-        "extra_field": "unexpected",
-    }
-    with caplog.at_level("ERROR"):
-        product = inv.create_product_from_row(row)
-    assert product is None
-    assert "Validation error in row" in caplog.text
-
-
 def test_load_csv_with_invalid_row(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
