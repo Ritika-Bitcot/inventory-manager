@@ -2,6 +2,10 @@ from unittest.mock import MagicMock, patch
 
 from Week3 import main
 
+# ----------------------------
+# Main Function Tests
+# ----------------------------
+
 
 def test_main_success(capsys) -> None:
     """
