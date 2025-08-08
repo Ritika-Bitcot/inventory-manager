@@ -5,7 +5,7 @@ from typing import List
 
 from pydantic import ValidationError
 
-from Week3.models import PRODUCT_CLASS_MAP, FoodProduct, Product
+from .models import PRODUCT_CLASS_MAP, FoodProduct, Product
 
 
 class Inventory:
@@ -83,8 +83,15 @@ class Inventory:
         self, threshold: int = 10, output_file: str = "low_stock_report.txt"
     ) -> None:
         """
-        Generates a report of products below the given stock threshold.
-        Excludes expired FoodProducts.
+        Generates a low stock report for the inventory.
+
+        Args:
+        - threshold (int): Defines the quantity below which products are considered low stock.
+        - output_file (str): The name of the file to which the report will be written.
+
+        Writes to the given file a list of products with quantities below the given threshold.
+        Ignores expired food products.
+        Logs errors if the output file directory is not found.
         """
         try:
             now = datetime.now()
@@ -94,7 +101,6 @@ class Inventory:
                 if p.quantity < threshold
                 and not (isinstance(p, FoodProduct) and p.expiry_date < now)
             ]
-
             with open(output_file, "w", encoding="utf-8") as f:
                 if not low_stock_items:
                     logging.info("No products found below the stock threshold.")

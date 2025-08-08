@@ -1,5 +1,7 @@
-from Week3.core import Inventory
-from Week3.utils import setup_logger
+import os
+
+from .core import Inventory
+from .utils import setup_logger
 
 
 def display_summary(summary: dict) -> None:
@@ -21,7 +23,11 @@ def main() -> None:
 
     try:
         inventory = Inventory()
-        inventory.load_from_csv("data/products.csv")
+        base_dir = os.path.dirname(__file__)
+        data_path = os.path.join(base_dir, "data", "products.csv")
+        print(f"Loading data from: {data_path}")
+        inventory.load_from_csv(data_path)
+
         summary = inventory.get_summary()
         display_summary(summary)
         inventory.generate_low_stock_report()
