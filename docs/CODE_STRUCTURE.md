@@ -43,7 +43,6 @@ inventory-manager/
 │ ├── routes/
 │ │   ├── __init__.py
 │ │   └── inventory.py              
-│ ├── config.py
 |
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
