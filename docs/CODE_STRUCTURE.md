@@ -9,6 +9,7 @@ inventory-manager/
 │ ├── test_models_using_fixtures.py
 │ ├── test_models.py
 │ └── test_requirements.txt
+|
 ├── Week1&2/
 │ ├── Control_Flow/
 │ ├── csv_modules/
@@ -23,6 +24,7 @@ inventory-manager/
 │ ├── equality_and_identity.py
 │ ├── hello.py
 │ └── zen.py
+|
 ├── Week3/
 │ ├── data/
 │ ├── core.py
@@ -32,6 +34,17 @@ inventory-manager/
 │ ├── errors.log
 │ ├── low_stock_report.txt
 │ └── init.py
+|
+├── Week5/
+├── Day1/
+│ ├── hello.py
+├── week3_api/
+│ ├── __init__.py
+│ ├── routes/
+│ │   ├── __init__.py
+│ │   └── inventory.py              
+│ ├── config.py
+|
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
 ├── setup.cfg
