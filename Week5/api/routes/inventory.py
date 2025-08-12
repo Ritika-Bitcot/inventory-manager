@@ -35,10 +35,10 @@ def hello() -> tuple:
 @inventory_bp.route("/products", methods=["GET"])
 def get_products() -> tuple:
     """
-    Returns a list of all products in the inventory.
+    Retrieves the list of all products in the inventory.
 
     Returns:
-        tuple: JSON response with a list of products and HTTP status code 200.
+        tuple: A JSON response containing a list of product details and HTTP status code 200.
     """
     products_list = [product.dict() for product in inventory.products if product]
     return jsonify(products_list), 200
