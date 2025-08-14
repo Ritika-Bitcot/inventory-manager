@@ -73,7 +73,6 @@ def create_product() -> Tuple[Any, int]:
     """
     try:
         product_data = request.get_json()
-        breakpoint()
 
         if not product_data:
             return jsonify({"error": "Invalid or missing JSON body"}), 400

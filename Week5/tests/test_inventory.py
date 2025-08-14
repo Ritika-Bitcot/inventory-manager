@@ -137,17 +137,6 @@ def test_empty_string_fields(client, base_product: Dict) -> None:
 # ---------- Additional Tests for 100% Coverage ----------
 
 
-# def test_create_product_bad_request(client):
-#     """Trigger exception in create_product safely using a context."""
-#     with patch(
-#         "api.routes.inventory.Inventory.create_product_from_row",
-#         side_effect=Exception("Unexpected error"),
-#     ):
-#         resp = client.post("/api/products", json={"any": "data"})
-#         assert resp.status_code == 500
-#         assert "error" in resp.get_json()
-
-
 def test_update_product_unexpected_exception(client, base_product: Dict):
     """Trigger unexpected exception in update_product safely using a context."""
     client.post("/api/products", json=base_product)
