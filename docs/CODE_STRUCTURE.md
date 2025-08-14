@@ -36,13 +36,17 @@ inventory-manager/
 │ └── init.py
 |
 ├── Week5/
+├── api/
+│ ├── routes/
+│ │   └── inventory.py  
+│ ├── __init__.py
+│ ├── app.py
 ├── Day1/
 │ ├── hello.py
-├── week3_api/
+├── tests/
 │ ├── __init__.py
-│ ├── routes/
-│ │   ├── __init__.py
-│ │   └── inventory.py              
+│ ├── conftest.py
+| ├── test_inventory.py
 |
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
@@ -110,5 +114,3 @@ The `tests/` directory contains test suites covering Week3 modules:
 | `conftest.py`               | pytest fixtures shared among tests     |
 
 ---
-
-This structure clearly separates your testing code from source code and keeps your project clean and maintainable.
