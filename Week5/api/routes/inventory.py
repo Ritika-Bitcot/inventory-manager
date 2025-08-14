@@ -1,81 +1,79 @@
 import logging
 import os
+from typing import Any, Tuple
 
 from flask import Blueprint, jsonify, request
 from pydantic import ValidationError
+from werkzeug.exceptions import BadRequest
 
 from Week3.core import Inventory
 
 inventory_bp = Blueprint("inventory", __name__)
 
-# Calculate absolute CSV path relative to this file for portability
-
+# CSV file path relative to this file
 base_dir = os.path.dirname(os.path.abspath(__file__))
 csv_path = os.path.abspath(
     os.path.join(base_dir, "..", "..", "..", "Week3", "data", "products.csv")
 )
 
-
-# Initialize the Inventory instance and load CSV once
+# Initialize inventory and load products from CSV
 inventory = Inventory()
 inventory.load_from_csv(csv_path)
 
 
 @inventory_bp.route("/hello", methods=["GET"])
-def hello() -> tuple:
+def hello() -> Tuple[Any, int]:
     """
-    Simple test endpoint to check if the API is running.
+    A simple test endpoint to verify the API is running.
 
     Returns:
-        tuple: JSON response with a friendly message and HTTP status code 200.
+        JSON response with message and status 200.
     """
     return jsonify({"message": "Hello from Inventory API!"}), 200
 
 
 @inventory_bp.route("/products", methods=["GET"])
-def get_products() -> tuple:
+def get_products() -> Tuple[Any, int]:
     """
-    Retrieves the list of all products in the inventory.
+    Returns all products in the inventory.
 
     Returns:
-        tuple: A JSON response containing a list of product details and HTTP status code 200.
+        JSON response with a list of products and status 200.
     """
-    products_list = [product.dict() for product in inventory.products if product]
+    products_list = [product.model_dump() for product in inventory.products if product]
     return jsonify(products_list), 200
 
 
 @inventory_bp.route("/products/<int:product_id>", methods=["GET"])
-def get_product(product_id: int) -> tuple:
+def get_product(product_id: int) -> Tuple[Any, int]:
     """
-    Retrieves a specific product from the inventory by its product ID.
+    Get a specific product by product_id.
 
     Args:
-        product_id (int): The ID of the product to retrieve.
+        product_id (int): ID of the product to retrieve.
 
     Returns:
-        tuple: A JSON response containing the product details and HTTP status code 200
-        if found, or an error message and HTTP status code 404 if not found.
+        JSON response with product details and status 200 if found,
+        else error message and status 404.
     """
-
     product = next((p for p in inventory.products if p.product_id == product_id), None)
     if not product:
         return jsonify({"error": "Product not found"}), 404
-    return jsonify(product.dict()), 200
+    return jsonify(product.model_dump()), 200
 
 
 @inventory_bp.route("/products", methods=["POST"])
-def create_product():
+def create_product() -> Tuple[Any, int]:
     """
-    Creates a new product in the inventory.
-
-    Accepts a JSON payload containing the product details.
+    Create a new product in the inventory.
 
     Returns:
-        tuple: A JSON response containing the created product details and HTTP status code 201
-        if successful, or an error message and HTTP status code 400/500 if not successful.
+        JSON response with created product and status 201 if successful,
+        else error message with 400/409/500.
     """
     try:
         product_data = request.get_json()
+
         if not product_data:
             return jsonify({"error": "Invalid or missing JSON body"}), 400
 
@@ -83,7 +81,6 @@ def create_product():
         if product is None:
             return jsonify({"error": "Invalid product data"}), 400
 
-        # Check for duplicate product_id
         if any(p.product_id == product.product_id for p in inventory.products):
             return (
                 jsonify({"error": "Product with this product_id already exists"}),
@@ -91,34 +88,37 @@ def create_product():
             )
 
         inventory.products.append(product)
-        return jsonify(product.dict()), 201
+        return jsonify(product.model_dump()), 201
+
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
+
+    except BadRequest:
+        return jsonify({"error": "Invalid or missing JSON body"}), 400
+
     except Exception as e:
         logging.error(f"Unexpected error in create_product: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 @inventory_bp.route("/products/<int:product_id>", methods=["PUT"])
-def update_product(product_id: int) -> tuple:
+def update_product(product_id: int) -> Tuple[Any, int]:
     """
-    Updates a specific product in the inventory by its product ID.
+    Update an existing product by product_id.
 
     Args:
-        product_id (int): The ID of the product to update.
+        product_id (int): ID of the product to update.
 
     Returns:
-        tuple: A JSON response containing the updated
-        product details and HTTP status code 200
-        if found and updated, or an error message and
-        HTTP status code 404/400/500 if not successful.
+        JSON response with updated product and status 200 if successful,
+        else error message with 400/404/500.
     """
     try:
-        update_data = request.get_json()
+        update_data = request.get_json(silent=True)
         if not update_data:
             return jsonify({"error": "Invalid or missing JSON body"}), 400
 
-        # Find existing product index
+        # Find index of existing product
         idx = next(
             (i for i, p in enumerate(inventory.products) if p.product_id == product_id),
             None,
@@ -126,19 +126,19 @@ def update_product(product_id: int) -> tuple:
         if idx is None:
             return jsonify({"error": "Product not found"}), 404
 
-        # Merge existing product data with update_data
+        # Merge existing product data with updates
         existing_product = inventory.products[idx]
-        updated_dict = existing_product.dict()
+        updated_dict = existing_product.model_dump()
         updated_dict.update(update_data)
 
-        # Validate updated product by recreating Product instance
+        # Validate updated product
         updated_product = inventory.create_product_from_row(updated_dict)
         if updated_product is None:
             return jsonify({"error": "Invalid updated data"}), 400
 
         # Replace old product
         inventory.products[idx] = updated_product
-        return jsonify(updated_product.dict()), 200
+        return jsonify(updated_product.model_dump()), 200
 
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
