@@ -43,13 +43,11 @@ pip install -r requirements.txt
 Create a .env file with:
 
 ```
-DB_USER=postgres
-DB_PASSWORD=root
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=inventory_db
-
-DATABASE_URL=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+DB_USER=your_postgres_username
+DB_PASSWORD=your_postgres_password
+DB_HOST=your_db_host
+DB_PORT=your_db_port
+DB_NAME=your_database_name
 
 FLASK_APP=api.app
 FLASK_ENV=development
