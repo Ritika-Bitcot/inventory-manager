@@ -25,7 +25,7 @@ def create_app(config_class=BaseConfig):
     from . import models
     from .routes import products
 
-    print(models)
+    app.logger.info(f"Imported models: {models}")
 
     app.register_blueprint(products.bp)
 

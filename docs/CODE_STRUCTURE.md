@@ -48,6 +48,18 @@ inventory-manager/
 │ ├── conftest.py
 | ├── test_inventory.py
 |
+├── Week6/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── app.py
+│   │   ├── config.py
+│   │   ├── models.py
+│   │   ├── db.py
+│   │   ├── routes/
+│   │   │   ├── __init__.py
+│   │   │   └── products.py
+│   └── migrations/
+|
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
 ├── setup.cfg
