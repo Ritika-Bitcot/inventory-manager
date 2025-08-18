@@ -9,6 +9,7 @@ inventory-manager/
 │ ├── test_models_using_fixtures.py
 │ ├── test_models.py
 │ └── test_requirements.txt
+|
 ├── Week1&2/
 │ ├── Control_Flow/
 │ ├── csv_modules/
@@ -23,6 +24,7 @@ inventory-manager/
 │ ├── equality_and_identity.py
 │ ├── hello.py
 │ └── zen.py
+|
 ├── Week3/
 │ ├── data/
 │ ├── core.py
@@ -32,6 +34,20 @@ inventory-manager/
 │ ├── errors.log
 │ ├── low_stock_report.txt
 │ └── init.py
+|
+├── Week5/
+├── api/
+│ ├── routes/
+│ │   └── inventory.py  
+│ ├── __init__.py
+│ ├── app.py
+├── Day1/
+│ ├── hello.py
+├── tests/
+│ ├── __init__.py
+│ ├── conftest.py
+| ├── test_inventory.py
+|
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
 ├── setup.cfg
@@ -98,5 +114,3 @@ The `tests/` directory contains test suites covering Week3 modules:
 | `conftest.py`               | pytest fixtures shared among tests     |
 
 ---
-
-This structure clearly separates your testing code from source code and keeps your project clean and maintainable.
