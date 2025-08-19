@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
@@ -35,12 +35,12 @@ class ProductBase(BaseModel):
 
 
 class FoodProductCreate(ProductBase):
-    mfg_date: datetime
-    expiry_date: datetime
+    mfg_date: date
+    expiry_date: date
 
 
 class ElectronicProductCreate(ProductBase):
-    purchase_date: datetime
+    purchase_date: date
     warranty_period: int = Field(..., ge=0)  # in months
 
 
@@ -59,9 +59,9 @@ class ProductUpdate(BaseModel):
     quantity: Optional[int] = Field(None, ge=0)
     price: Optional[float] = Field(None, gt=0)
 
-    mfg_date: Optional[datetime] = None
-    expiry_date: Optional[datetime] = None
-    purchase_date: Optional[datetime] = None
+    mfg_date: Optional[date] = None
+    expiry_date: Optional[date] = None
+    purchase_date: Optional[date] = None
     warranty_period: Optional[int] = None
     author: Optional[str] = None
     publication_year: Optional[int] = None
