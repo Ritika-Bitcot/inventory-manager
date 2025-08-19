@@ -23,6 +23,21 @@ class Product(db.Model):
         """
         return self.price * self.quantity
 
+    def serialize(self):
+        """
+        Returns a JSON serializable representation of the product.
+
+        Returns:
+        A dictionary that can be serialized to JSON.
+        """
+        return {
+            "id": self.id,
+            "product_name": self.product_name,
+            "category": self.category,
+            "quantity": self.quantity,
+            "price": self.price,
+        }
+
 
 class FoodProduct(Product):
     __tablename__ = "food_products"
@@ -33,6 +48,26 @@ class FoodProduct(Product):
     __mapper_args__ = {
         "polymorphic_identity": "food",
     }
+
+    def __init__(
+        self, product_name, category, quantity, price, mfg_date, expiry_date
+    ) -> None:
+        """
+        Initializes a FoodProduct instance with the given arguments.
+
+        Args:
+            product_name (str): The name of the product.
+            category (str): The category of the product.
+            quantity (int): The quantity of the product.
+            price (float): The price of the product.
+            mfg_date (datetime): The manufacturing date of the product.
+            expiry_date (datetime): The expiry date of the product.
+        """
+        super().__init__(
+            product_name=product_name, category=category, quantity=quantity, price=price
+        )
+        self.mfg_date = mfg_date
+        self.expiry_date = expiry_date
 
 
 class ElectronicProduct(Product):
@@ -45,7 +80,33 @@ class ElectronicProduct(Product):
         "polymorphic_identity": "electronic",
     }
 
+    def __init__(
+        self, product_name, category, quantity, price, purchase_date, warranty_period
+    ) -> None:
+        """
+        Initializes an ElectronicProduct instance with the given arguments.
+
+        Args:
+            product_name (str): The name of the product.
+            category (str): The category of the product.
+            quantity (int): The quantity of the product.
+            price (float): The price of the product.
+            purchase_date (datetime): The purchase date of the product.
+            warranty_period (int): The warranty period in months.
+        """
+        super().__init__(
+            product_name=product_name, category=category, quantity=quantity, price=price
+        )
+        self.purchase_date = purchase_date
+        self.warranty_period = warranty_period
+
     def get_warranty_end_date(self):
+        """
+        Calculates the warranty end date based on the purchase date.
+
+        Returns:
+            datetime: The warranty end date.
+        """
         return self.purchase_date + relativedelta(months=self.warranty_period)
 
 
@@ -58,3 +119,23 @@ class BookProduct(Product):
     __mapper_args__ = {
         "polymorphic_identity": "book",
     }
+
+    def __init__(
+        self, product_name, category, quantity, price, author, publication_year
+    ) -> None:
+        """
+        Initializes a BookProduct instance with the given arguments.
+
+        Args:
+            product_name (str): The name of the product.
+            category (str): The category of the product.
+            quantity (int): The quantity of the product.
+            price (float): The price of the product.
+            author (str): The author of the book.
+            publication_year (int): The year of publication.
+        """
+        super().__init__(
+            product_name=product_name, category=category, quantity=quantity, price=price
+        )
+        self.author = author
+        self.publication_year = publication_year
