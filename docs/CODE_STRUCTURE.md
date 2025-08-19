@@ -2,14 +2,6 @@
 
 ```
 inventory-manager/
-├── tests/
-│ ├── conftest.py
-│ ├── test_core.py
-│ ├── test_main.py
-│ ├── test_models_using_fixtures.py
-│ ├── test_models.py
-│ └── test_requirements.txt
-|
 ├── Week1&2/
 │ ├── Control_Flow/
 │ ├── csv_modules/
@@ -35,6 +27,14 @@ inventory-manager/
 │ ├── low_stock_report.txt
 │ └── init.py
 |
+├── Week4/
+│ ├── conftest.py
+│ ├── test_core.py
+│ ├── test_main.py
+│ ├── test_models_using_fixtures.py
+│ ├── test_models.py
+│ └── test_requirements.txt
+|
 ├── Week5/
 ├── api/
 │ ├── routes/
@@ -49,11 +49,15 @@ inventory-manager/
 | ├── test_inventory.py
 |
 ├── Week6/
+│   ├── data/
+│   │   ├── products.csv
 │   ├── api/
 │   │   ├── __init__.py
 │   │   ├── app.py
 │   │   ├── config.py
 │   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── seed.py
 │   │   ├── db.py
 │   │   ├── routes/
 │   │   │   ├── __init__.py
