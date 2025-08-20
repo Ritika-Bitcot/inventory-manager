@@ -86,6 +86,33 @@ http://127.0.0.1:5000
 Products API: http://127.0.0.1:5000/products
 ```
 
+## 7. Seed the Database with Sample Products
+
+After running migrations and creating tables, you can populate the database from the CSV file.
+
+1. Set the FLASK_APP to the seed module:
+
+```
+export FLASK_APP=api.seed       # Linux/macOS
+$env:FLASK_APP="api.seed"       # Windows PowerShell
+```
+Run the seed command:
+
+```
+flask seed-db
+```
+You should see output like:
+```
+Database seeded successfully.
+```
+Verify data:
+
+```
+flask shell
+>>> from api.models import Product, FoodProduct, ElectronicProduct, BookProduct
+>>> Product.query.all()
+```
+
 ### Notes
 Alembic script.py.mako is ignored in Git via .gitignore.
 
@@ -94,3 +121,7 @@ The project uses Blueprints for modular routing.
 Models must be imported in migrations/env.py to detect schema changes during migration.
 
 For any database changes, always run flask db migrate and flask db upgrade.
+
+The CSV file should be located at Week6/data/products.csv.
+
+Make sure PostgreSQL is running and your database URI in .env is correct.
