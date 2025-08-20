@@ -41,16 +41,12 @@ class FoodProductCreate(ProductBase):
 
 class ElectronicProductCreate(ProductBase):
     purchase_date: date
-    warranty_period: int = Field(..., ge=0)  # in months
+    warranty_period: int = Field(..., ge=0)
 
 
 class BookProductCreate(ProductBase):
     author: str = Field(..., min_length=1)
     publication_year: int = Field(..., ge=0)
-
-
-# Union type for POST
-ProductCreate = (FoodProductCreate, ElectronicProductCreate, BookProductCreate)
 
 
 class ProductUpdate(BaseModel):
@@ -68,22 +64,6 @@ class ProductUpdate(BaseModel):
 
     @field_validator("category")
     def validate_category(cls, v) -> str:
-        """
-        Validate the category field of the ProductUpdate model.
-
-        The category should be one of 'food', 'electronic', or 'book'.
-        The category is case-insensitive, and will be converted to lowercase
-        before validation.
-
-        Args:
-            v (str): The value of the category field.
-
-        Returns:
-            str: The validated and normalized category value.
-
-        Raises:
-            ValueError: If the category is invalid.
-        """
         if v:
             allowed = {"food", "electronic", "book"}
             if v.lower() not in allowed:

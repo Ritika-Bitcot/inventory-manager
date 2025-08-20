@@ -4,16 +4,24 @@ from flask import Blueprint, jsonify, request
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from ..db import db
-from ..models import BookProduct, ElectronicProduct, FoodProduct, Product
-from ..schemas import (
+from api.schemas.request import (
     BookProductCreate,
     ElectronicProductCreate,
     FoodProductCreate,
     ProductUpdate,
 )
+from api.schemas.response import (
+    ErrorResponse,
+    ProductCreateResponse,
+    ProductDeleteResponse,
+    ProductResponse,
+    ProductUpdateResponse,
+)
 
-bp = Blueprint("products", __name__, url_prefix="/api/products")
+from ..db import db
+from ..models import BookProduct, ElectronicProduct, FoodProduct, Product
+
+bp = Blueprint("productSs", __name__, url_prefix="/api/products")
 
 CATEGORY_MAP: Dict[str, Type[Product]] = {
     "food": FoodProduct,
@@ -40,9 +48,13 @@ def get_products() -> tuple[Any, int]:
     """
     try:
         products = Product.query.all()
-        return jsonify([p.serialize() for p in products]), 200
+        response = [ProductResponse.from_orm(p).dict() for p in products]
+        return jsonify({"products": response}), 200
     except SQLAlchemyError as e:
-        return jsonify({"error": "Database error", "details": str(e)}), 500
+        return (
+            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            500,
+        )
 
 
 @bp.route("/<int:product_id>", methods=["GET"])
@@ -61,10 +73,13 @@ def get_product(product_id: int) -> tuple[Any, int]:
     try:
         product = Product.query.get(product_id)
         if not product:
-            return jsonify({"error": "Product not found"}), 404
-        return jsonify(product.serialize()), 200
+            return jsonify(ErrorResponse(error="Product not found").dict()), 404
+        return jsonify(ProductResponse.from_orm(product).dict()), 200
     except SQLAlchemyError as e:
-        return jsonify({"error": "Database error", "details": str(e)}), 500
+        return (
+            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            500,
+        )
 
 
 @bp.route("/", methods=["POST"])
@@ -83,7 +98,7 @@ def create_product() -> tuple[Any, int]:
         data: Dict[str, Any] = request.get_json()
         category = data.get("category", "").lower()
         if category not in SCHEMA_MAP:
-            return jsonify({"error": "Invalid category"}), 400
+            return jsonify(ErrorResponse(error="Invalid category").dict()), 400
 
         schema_class = SCHEMA_MAP[category]
         product_data = schema_class(**data)
@@ -93,18 +108,32 @@ def create_product() -> tuple[Any, int]:
 
         db.session.add(product)
         db.session.commit()
+
         return (
-            jsonify({"message": "Product created", "product": product.serialize()}),
+            jsonify(
+                ProductCreateResponse(
+                    message="Product created", product=ProductResponse.from_orm(product)
+                ).dict()
+            ),
             201,
         )
     except ValidationError as e:
-        return jsonify({"error": "Validation error", "details": e.errors()}), 400
+        return (
+            jsonify(ErrorResponse(error="Validation error", details=e.errors()).dict()),
+            400,
+        )
     except IntegrityError as e:
         db.session.rollback()
-        return jsonify({"error": "Integrity error", "details": str(e)}), 400
+        return (
+            jsonify(ErrorResponse(error="Integrity error", details=str(e)).dict()),
+            400,
+        )
     except SQLAlchemyError as e:
         db.session.rollback()
-        return jsonify({"error": "Database error", "details": str(e)}), 500
+        return (
+            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            500,
+        )
 
 
 @bp.route("/<int:product_id>", methods=["PUT"])
@@ -126,7 +155,7 @@ def update_product(product_id: int) -> tuple[Any, int]:
     try:
         product = Product.query.get(product_id)
         if not product:
-            return jsonify({"error": "Product not found"}), 404
+            return jsonify(ErrorResponse(error="Product not found").dict()), 404
 
         data: Dict[str, Any] = request.get_json()
         update_data = ProductUpdate(**data)
@@ -136,17 +165,31 @@ def update_product(product_id: int) -> tuple[Any, int]:
 
         db.session.commit()
         return (
-            jsonify({"message": "Product updated", "product": product.serialize()}),
+            jsonify(
+                ProductUpdateResponse(
+                    message="Product updated", product=ProductResponse.from_orm(product)
+                ).dict()
+            ),
             200,
         )
+
     except ValidationError as e:
-        return jsonify({"error": "Validation error", "details": e.errors()}), 400
-    except IntegrityError:
+        return (
+            jsonify(ErrorResponse(error="Validation error", details=e.errors()).dict()),
+            400,
+        )
+    except IntegrityError as e:
         db.session.rollback()
-        return jsonify({"error": "Integrity error"}), 400
+        return (
+            jsonify(ErrorResponse(error="Integrity error", details=str(e)).dict()),
+            400,
+        )
     except SQLAlchemyError as e:
         db.session.rollback()
-        return jsonify({"error": "Database error", "details": str(e)}), 500
+        return (
+            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            500,
+        )
 
 
 @bp.route("/<int:product_id>", methods=["DELETE"])
@@ -165,10 +208,13 @@ def delete_product(product_id: int) -> tuple[Any, int]:
     try:
         product = Product.query.get(product_id)
         if not product:
-            return jsonify({"error": "Product not found"}), 404
+            return jsonify(ErrorResponse(error="Product not found").dict()), 404
         db.session.delete(product)
         db.session.commit()
-        return jsonify({"message": "Product deleted"}), 200
+        return jsonify(ProductDeleteResponse(message="Product deleted").dict()), 200
     except SQLAlchemyError as e:
         db.session.rollback()
-        return jsonify({"error": "Database error", "details": str(e)}), 500
+        return (
+            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            500,
+        )
