@@ -56,9 +56,12 @@ inventory-manager/
 │   │   ├── app.py
 │   │   ├── config.py
 │   │   ├── models.py
-│   │   ├── schemas.py
-│   │   ├── seed.py
-│   │   ├── db.py
+│   ├── schemas/ 
+│   │   ├── __init__.py
+│   |   ├── request.py
+│   │   └── response.py
+│   ├── seed.py
+│   ├── db.py
 │   │   ├── routes/
 │   │   │   ├── __init__.py
 │   │   │   └── products.py
