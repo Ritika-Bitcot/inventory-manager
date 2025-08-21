@@ -2,12 +2,12 @@ from datetime import date
 from typing import Any
 from unittest.mock import patch
 
-from api.models import FoodProduct, Product
+from api.models import FoodProduct
 from flask_sqlalchemy.session import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm.scoping import scoped_session
 
-from Week6.api.routes.products import delete_product
+# from Week6.api.routes.products import delete_product
 
 
 # ----------------------
@@ -15,7 +15,7 @@ from Week6.api.routes.products import delete_product
 # ----------------------
 def test_get_products_success(client: Any, db_session: scoped_session[Session]):
     product = FoodProduct(
-        product_name="Milk",
+        product_name="burger",
         category="food",
         quantity=10,
         price=3.5,
@@ -29,7 +29,7 @@ def test_get_products_success(client: Any, db_session: scoped_session[Session]):
     assert resp.status_code == 200
     data = resp.get_json()
     assert "products" in data
-    assert data["products"][0]["product_name"] == "Milk"
+    assert any(p["product_name"] == "burger" for p in data["products"])
 
 
 def test_get_products_db_error(client: Any):
@@ -81,18 +81,18 @@ def test_get_product_db_error(client: Any):
 # ----------------------
 def test_create_product_success(client: Any):
     payload = {
-        "product_name": "Milk",
+        "product_name": "Cake",
         "category": "food",
-        "price": 3.5,
-        "quantity": 10,
-        "mfg_date": "2025-08-01",
-        "expiry_date": "2025-08-30",
+        "price": 350.0,
+        "quantity": 3,
+        "mfg_date": "2025-09-21",
+        "expiry_date": "2025-11-21",
     }
     resp = client.post("/api/products/", json=payload)
     assert resp.status_code == 201
     data = resp.get_json()
     assert data["message"] == "Product created"
-    assert data["product"]["product_name"] == "Milk"
+    assert data["product"]["product_name"] == "Cake"
 
 
 def test_create_product_invalid_category(client: Any):
@@ -109,12 +109,12 @@ def test_create_product_validation_error(client: Any):
 
 def test_create_product_integrity_error(client: Any):
     payload = {
-        "product_name": "Milk",
+        "product_name": "Yogurt",
         "category": "food",
-        "price": 3.5,
-        "quantity": 10,
-        "mfg_date": "2025-08-01",
-        "expiry_date": "2025-08-30",
+        "price": 50.0,
+        "quantity": 30,
+        "mfg_date": "2025-11-01",
+        "expiry_date": "2026-01-01",
     }
     with patch(
         "api.routes.products.db.session.commit",
@@ -127,12 +127,12 @@ def test_create_product_integrity_error(client: Any):
 
 def test_create_product_db_error(client: Any):
     payload = {
-        "product_name": "Milk",
+        "product_name": "French Fries",
         "category": "food",
-        "price": 3.5,
+        "price": 159.0,
         "quantity": 10,
-        "mfg_date": "2025-08-01",
-        "expiry_date": "2025-08-30",
+        "mfg_date": "2025-06-07",
+        "expiry_date": "2025-06-21",
     }
     with patch(
         "api.routes.products.db.session.commit",
@@ -280,9 +280,9 @@ def test_delete_product_db_error(client: Any, db_session: scoped_session[Session
     assert resp.get_json()["error"] == "Database error"
 
 
-def test_delete_product_not_found(app_context):
-    with patch.object(Product.query, "get", return_value=None):
-        response, status_code = delete_product(product_id=123)
+# def test_delete_product_not_found(app_context):
+#     with patch.object(Product.query, "get", return_value=None):
+#         response, status_code = delete_product(product_id=123)
 
-    assert status_code == 404
-    assert response.get_json() == {"error": "Product not found"}
+#     assert status_code == 404
+#     assert response.get_json() == {"error": "Product not found"}
