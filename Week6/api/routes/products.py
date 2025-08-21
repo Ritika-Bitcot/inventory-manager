@@ -48,11 +48,11 @@ def get_products() -> tuple[Any, int]:
     """
     try:
         products = Product.query.all()
-        response = [ProductResponse.from_orm(p).dict() for p in products]
+        response = [ProductResponse.model_validate(p).model_dump() for p in products]
         return jsonify({"products": response}), 200
     except SQLAlchemyError as e:
         return (
-            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            jsonify(ErrorResponse(error="Database error", details=str(e)).model_dump()),
             500,
         )
 
@@ -73,11 +73,11 @@ def get_product(product_id: int) -> tuple[Any, int]:
     try:
         product = Product.query.get(product_id)
         if not product:
-            return jsonify(ErrorResponse(error="Product not found").dict()), 404
-        return jsonify(ProductResponse.from_orm(product).dict()), 200
+            return jsonify(ErrorResponse(error="Product not found").model_dump()), 404
+        return jsonify(ProductResponse.model_validate(product).model_dump()), 200
     except SQLAlchemyError as e:
         return (
-            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            jsonify(ErrorResponse(error="Database error", details=str(e)).model_dump()),
             500,
         )
 
@@ -98,13 +98,13 @@ def create_product() -> tuple[Any, int]:
         data: Dict[str, Any] = request.get_json()
         category = data.get("category", "").lower()
         if category not in SCHEMA_MAP:
-            return jsonify(ErrorResponse(error="Invalid category").dict()), 400
+            return jsonify(ErrorResponse(error="Invalid category").model_dump()), 400
 
         schema_class = SCHEMA_MAP[category]
         product_data = schema_class(**data)
 
         model_class = CATEGORY_MAP[category]
-        product = model_class(**product_data.dict())
+        product = model_class(**product_data.model_dump())
 
         db.session.add(product)
         db.session.commit()
@@ -112,26 +112,31 @@ def create_product() -> tuple[Any, int]:
         return (
             jsonify(
                 ProductCreateResponse(
-                    message="Product created", product=ProductResponse.from_orm(product)
-                ).dict()
+                    message="Product created",
+                    product=ProductResponse.model_validate(product),
+                ).model_dump()
             ),
             201,
         )
     except ValidationError as e:
         return (
-            jsonify(ErrorResponse(error="Validation error", details=e.errors()).dict()),
+            jsonify(
+                ErrorResponse(error="Validation error", details=e.errors()).model_dump()
+            ),
             400,
         )
     except IntegrityError as e:
         db.session.rollback()
         return (
-            jsonify(ErrorResponse(error="Integrity error", details=str(e)).dict()),
+            jsonify(
+                ErrorResponse(error="Integrity error", details=str(e)).model_dump()
+            ),
             400,
         )
     except SQLAlchemyError as e:
         db.session.rollback()
         return (
-            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            jsonify(ErrorResponse(error="Database error", details=str(e)).model_dump()),
             500,
         )
 
@@ -155,39 +160,44 @@ def update_product(product_id: int) -> tuple[Any, int]:
     try:
         product = Product.query.get(product_id)
         if not product:
-            return jsonify(ErrorResponse(error="Product not found").dict()), 404
+            return jsonify(ErrorResponse(error="Product not found").model_dump()), 404
 
         data: Dict[str, Any] = request.get_json()
         update_data = ProductUpdate(**data)
 
-        for key, value in update_data.dict(exclude_unset=True).items():
+        for key, value in update_data.model_dump(exclude_unset=True).items():
             setattr(product, key, value)
 
         db.session.commit()
         return (
             jsonify(
                 ProductUpdateResponse(
-                    message="Product updated", product=ProductResponse.from_orm(product)
-                ).dict()
+                    message="Product updated",
+                    product=ProductResponse.model_validate(product),
+                ).model_dump()
             ),
             200,
         )
 
     except ValidationError as e:
         return (
-            jsonify(ErrorResponse(error="Validation error", details=e.errors()).dict()),
+            jsonify(
+                ErrorResponse(error="Validation error", details=e.errors()).model_dump()
+            ),
             400,
         )
     except IntegrityError as e:
         db.session.rollback()
         return (
-            jsonify(ErrorResponse(error="Integrity error", details=str(e)).dict()),
+            jsonify(
+                ErrorResponse(error="Integrity error", details=str(e)).model_dump()
+            ),
             400,
         )
     except SQLAlchemyError as e:
         db.session.rollback()
         return (
-            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            jsonify(ErrorResponse(error="Database error", details=str(e)).model_dump()),
             500,
         )
 
@@ -208,13 +218,16 @@ def delete_product(product_id: int) -> tuple[Any, int]:
     try:
         product = Product.query.get(product_id)
         if not product:
-            return jsonify(ErrorResponse(error="Product not found").dict()), 404
+            return jsonify(ErrorResponse(error="Product not found").model_dump()), 404
         db.session.delete(product)
         db.session.commit()
-        return jsonify(ProductDeleteResponse(message="Product deleted").dict()), 200
+        return (
+            jsonify(ProductDeleteResponse(message="Product deleted").model_dump()),
+            200,
+        )
     except SQLAlchemyError as e:
         db.session.rollback()
         return (
-            jsonify(ErrorResponse(error="Database error", details=str(e)).dict()),
+            jsonify(ErrorResponse(error="Database error", details=str(e)).model_dump()),
             500,
         )
