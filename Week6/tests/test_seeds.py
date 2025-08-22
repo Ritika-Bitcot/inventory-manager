@@ -81,7 +81,7 @@ def test_create_product_from_row_electronic() -> None:
 
 def test_create_product_from_row_book() -> None:
     """
-    Ensure create_product_from_row return a valid BookProduct.
+    Ensure create_product_from_row returns a valid BookProduct.
     """
     row = {
         "product_name": "Python 101",
