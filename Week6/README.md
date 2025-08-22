@@ -160,4 +160,3 @@ For any database changes, always run flask db migrate and flask db upgrade.
 The CSV file should be located at Week6/data/products.csv.
 
 Make sure PostgreSQL is running and your database URI in .env is correct.
-
