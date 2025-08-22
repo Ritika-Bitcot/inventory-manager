@@ -113,6 +113,41 @@ flask shell
 >>> Product.query.all()
 ```
 
+## 8. Testing
+
+The project uses pytest for automated testing.
+
+**Run all tests**:
+```
+pytest
+```
+
+**Run a specific test file**:
+```
+pytest tests/test_models.py -vv
+```
+
+**Run a single test function**:
+```
+pytest tests/test_models.py::test_product_total_value_and_serialize -vv
+```
+
+**Run tests with coverage report**:
+```
+pytest --cov=api --cov-report=term-missing
+```
+
+**Test Database**
+
+By default, tests use an in-memory SQLite database (sqlite:///:memory:) for speed and isolation.
+
+PostgreSQL can also be used for integration testing by setting the environment variable:
+
+export TEST_DB_URI=postgresql://user:pass@localhost/test_db
+
+
+This allows switching between lightweight unit tests and real DB integration tests.
+
 ### Notes
 Alembic script.py.mako is ignored in Git via .gitignore.
 
