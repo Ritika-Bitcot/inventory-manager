@@ -32,7 +32,7 @@ def create_app(config_class=BaseConfig):
     return app
 
 
-app = create_app()
+app = create_app(BaseConfig)
 
 if __name__ == "__main__":
     app.run(debug=True)
