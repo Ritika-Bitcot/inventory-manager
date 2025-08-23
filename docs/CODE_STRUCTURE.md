@@ -56,16 +56,24 @@ inventory-manager/
 │   │   ├── app.py
 │   │   ├── config.py
 │   │   ├── models.py
-│   ├── schemas/ 
+│   |   ├── seed.py
+│   |   ├── db.py
+|   │   ├── schemas/ 
 │   │   ├── __init__.py
 │   |   ├── request.py
 │   │   └── response.py
-│   ├── seed.py
-│   ├── db.py
 │   │   ├── routes/
 │   │   │   ├── __init__.py
 │   │   │   └── products.py
+│   ├── tests/ 
+│   │   ├── __init__.py
+│   |   ├── conftest.py
+│   │   └── test_models.py
+│   │   └── test_products_api.py
+│   │   └── test_seeds.py
 │   └── migrations/
+│   └── .env.example
+│   └── README.md
 |
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
