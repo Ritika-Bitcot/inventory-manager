@@ -48,7 +48,7 @@ inventory-manager/
 │ ├── conftest.py
 | ├── test_inventory.py
 |
-├── Week6/
+├── Week6&7/
 │   ├── data/
 │   │   ├── products.csv
 │   ├── api/
@@ -59,18 +59,20 @@ inventory-manager/
 │   |   ├── seed.py
 │   |   ├── db.py
 |   │   ├── schemas/ 
-│   │   ├── __init__.py
-│   |   ├── request.py
-│   │   └── response.py
+│   │   |   ├── __init__.py
+│   |   |   ├── request.py
+│   │   |   └── response.py
+│   │   │   └── user.py
 │   │   ├── routes/
 │   │   │   ├── __init__.py
 │   │   │   └── products.py
+│   │   │   └── auth.py            
 │   ├── tests/ 
-│   │   ├── __init__.py
-│   |   ├── conftest.py
-│   │   └── test_models.py
-│   │   └── test_products_api.py
-│   │   └── test_seeds.py
+│   │   |   ├── __init__.py
+│   |   |   ├── conftest.py
+│   │   |   └── test_models.py
+│   │   |   └── test_products_api.py
+│   │   |   └── test_seeds.py
 │   └── migrations/
 │   └── .env.example
 │   └── README.md

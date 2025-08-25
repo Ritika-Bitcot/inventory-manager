@@ -22,7 +22,7 @@ This folder contains the Week6 version of the Inventory Manager API built using 
 
 ```
 git clone <repo-url>
-cd inventory-manager/Week6
+cd inventory-manager/Week6&7
 ```
 
 2. **Create a virtual environment and activate it**:
@@ -51,6 +51,9 @@ DB_NAME=your_database_name
 
 FLASK_APP=api.app
 FLASK_ENV=development
+
+JWT_SECRET_KEY=your_secret_key
+JWT_ACCESS_TOKEN_EXPIRES=expire_time_in_seconds
 ```
 Make sure PostgreSQL is running and the user/password/database exist.
 
