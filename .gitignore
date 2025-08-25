@@ -20,3 +20,6 @@ coverage.xml
 *.cover
 .hypothesis/
 pytestdebug.log
+
+#migrations files
+Week6&7/migrations/script.py.mako
