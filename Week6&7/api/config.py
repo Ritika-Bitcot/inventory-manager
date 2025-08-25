@@ -27,3 +27,7 @@ class TestingConfig(BaseConfig):
         f"{os.environ.get('TEST_DB_NAME')}"
     )
     TESTING = True
+
+
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+JWT_ACCESS_TOKEN_EXPIRES = int(os.environ.get("JWT_ACCESS_TOKEN_EXPIRES"))
