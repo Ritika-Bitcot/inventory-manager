@@ -23,11 +23,12 @@ def create_app(config_class=BaseConfig):
 
     # import models so Alembic sees them
     from . import models
-    from .routes import products
+    from .routes import auth, products
 
     app.logger.info(f"Imported models: {models}")
 
     app.register_blueprint(products.bp)
+    app.register_blueprint(auth.auth_bp)
 
     return app
 

@@ -1,5 +1,9 @@
+import uuid
+
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import Column, Date, Float, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import UUID
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from .db import db
 
@@ -141,3 +145,42 @@ class BookProduct(Product):
         )
         self.author = author
         self.publication_year = publication_year
+
+
+class User(db.Model):
+    """
+    Represents a user in the system.
+    """
+
+    __tablename__ = "users"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+    )
+    username = Column(String(50), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+
+    def set_password(self, password: str) -> None:
+        """
+        Hash and set the user's password.
+        """
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str) -> bool:
+        """
+        Verify a plaintext password against the stored hash.
+        """
+        return check_password_hash(self.password_hash, password)
+
+    def serialize(self) -> dict:
+        """
+        Return a safe dict representation of the user.
+        """
+        return {
+            "id": str(self.id),
+            "username": self.username,
+        }

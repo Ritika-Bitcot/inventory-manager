@@ -1,16 +1,17 @@
-"""Initial migration
+"""Inital migrations with Products and User model
 
-Revision ID: be106ae87a64
+Revision ID: a097c1005b66
 Revises:
-Create Date: 2025-08-18 14:55:08.593886
+Create Date: 2025-08-25 12:39:52.093506
 
 """
 
-import sqlalchemy as sa
 from alembic import op
+import sqlalchemy as sa
+
 
 # revision identifiers, used by Alembic.
-revision = "be106ae87a64"
+revision = "a097c1005b66"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,8 +26,16 @@ def upgrade():
         sa.Column("category", sa.String(length=20), nullable=False),
         sa.Column("quantity", sa.Integer(), nullable=False),
         sa.Column("price", sa.Float(), nullable=False),
-        sa.Column("type", sa.String(length=20), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_table(
+        "users",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("username", sa.String(length=50), nullable=False),
+        sa.Column("password_hash", sa.String(length=255), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("id"),
+        sa.UniqueConstraint("username"),
     )
     op.create_table(
         "book_products",
@@ -42,7 +51,7 @@ def upgrade():
     op.create_table(
         "electronic_products",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("purchase_date", sa.DateTime(), nullable=False),
+        sa.Column("purchase_date", sa.Date(), nullable=False),
         sa.Column("warranty_period", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["id"],
@@ -53,8 +62,8 @@ def upgrade():
     op.create_table(
         "food_products",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("mfg_date", sa.DateTime(), nullable=False),
-        sa.Column("expiry_date", sa.DateTime(), nullable=False),
+        sa.Column("mfg_date", sa.Date(), nullable=False),
+        sa.Column("expiry_date", sa.Date(), nullable=False),
         sa.ForeignKeyConstraint(
             ["id"],
             ["products.id"],
@@ -69,5 +78,6 @@ def downgrade():
     op.drop_table("food_products")
     op.drop_table("electronic_products")
     op.drop_table("book_products")
+    op.drop_table("users")
     op.drop_table("products")
     # ### end Alembic commands ###
