@@ -3,6 +3,15 @@ from typing import Any, List, Optional
 from pydantic import BaseModel
 
 
+class LoginResponse(BaseModel):
+    """
+    Schema for returning JWT login response.
+    """
+
+    access_token: str
+    token_type: str = "bearer"
+
+
 class ErrorResponse(BaseModel):
     error: str
     details: Optional[Any] = None

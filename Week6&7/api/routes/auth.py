@@ -2,7 +2,10 @@ from flask import Blueprint, jsonify, request
 from pydantic import ValidationError
 
 from ..db import db
+from ..jwt_service import JWTService
 from ..models import User
+from ..schemas.request import LoginRequest
+from ..schemas.response import ErrorResponse, LoginResponse
 from ..schemas.user import RegisterRequest
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -45,3 +48,32 @@ def register():
         ),
         201,
     )
+
+
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    """
+    Authenticates user and returns JWT access token.
+    """
+    try:
+        data = LoginRequest(**request.get_json())
+    except ValidationError as e:
+        return (
+            jsonify(
+                ErrorResponse(error="Validation error", details=e.errors()).model_dump()
+            ),
+            400,
+        )
+
+    # Check user
+    user = User.query.filter_by(username=data.username).first()
+    if not user or not user.check_password(data.password):
+        return (
+            jsonify(ErrorResponse(error="Invalid username or password").model_dump()),
+            401,
+        )
+
+    # Generate access token
+    token = JWTService.generate_token(str(user.id), user.username)
+    response = LoginResponse(access_token=token)
+    return jsonify(response.model_dump()), 200

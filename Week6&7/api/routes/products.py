@@ -19,6 +19,7 @@ from api.schemas.response import (
 )
 
 from ..db import db
+from ..decorators import jwt_required
 from ..models import BookProduct, ElectronicProduct, FoodProduct, Product
 
 bp = Blueprint("productSs", __name__, url_prefix="/api/products")
@@ -83,6 +84,7 @@ def get_product(product_id: int) -> tuple[Any, int]:
 
 
 @bp.route("/", methods=["POST"])
+@jwt_required
 def create_product() -> tuple[Any, int]:
     """
     Create a new product in the database.
@@ -142,6 +144,7 @@ def create_product() -> tuple[Any, int]:
 
 
 @bp.route("/<int:product_id>", methods=["PUT"])
+@jwt_required
 def update_product(product_id: int) -> tuple[Any, int]:
     """
     Update an existing product by its ID.
@@ -203,6 +206,7 @@ def update_product(product_id: int) -> tuple[Any, int]:
 
 
 @bp.route("/<int:product_id>", methods=["DELETE"])
+@jwt_required
 def delete_product(product_id: int) -> tuple[Any, int]:
     """
     Delete a product from the database by its ID.
