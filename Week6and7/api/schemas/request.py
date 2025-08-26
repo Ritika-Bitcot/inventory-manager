@@ -4,6 +4,15 @@ from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 
+class LoginRequest(BaseModel):
+    """
+    Schema for validating user login input.
+    """
+
+    username: str = Field(..., min_length=3, max_length=50)
+    password: str = Field(..., min_length=6, max_length=128)
+
+
 class ProductBase(BaseModel):
     product_name: str = Field(..., min_length=1, max_length=100)
     category: str = Field(..., min_length=1, max_length=50)

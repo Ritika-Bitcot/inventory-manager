@@ -1,7 +1,10 @@
+from dotenv import load_dotenv
 from flask import Flask
 
 from .config import BaseConfig
 from .db import db, migrate
+
+load_dotenv()
 
 
 def create_app(config_class=BaseConfig):

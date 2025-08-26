@@ -3,6 +3,18 @@ from typing import Any, List, Optional
 from pydantic import BaseModel
 
 
+class LoginResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class RefreshResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
 class ErrorResponse(BaseModel):
     error: str
     details: Optional[Any] = None
