@@ -100,11 +100,9 @@ def refresh() -> tuple:
         access_token = JWTService.generate_access_token(
             payload["sub"], payload["username"]
         )
-        print(access_token)
         refresh_token = JWTService.generate_refresh_token(
             payload["sub"], payload["username"]
         )
-        print(refresh_token)
         response = RefreshResponse(
             access_token=access_token, refresh_token=refresh_token
         )
