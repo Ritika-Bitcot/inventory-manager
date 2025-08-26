@@ -13,7 +13,7 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @auth_bp.route("/register", methods=["POST"])
-def register():
+def register() -> tuple:
     """
     Registers a new user.
 
@@ -52,7 +52,7 @@ def register():
 
 
 @auth_bp.route("/login", methods=["POST"])
-def login():
+def login() -> tuple:
     """
     Authenticates user and returns JWT access token.
     """
@@ -84,7 +84,7 @@ def login():
 
 
 @auth_bp.route("/refresh", methods=["POST"])
-def refresh():
+def refresh() -> tuple:
     data = request.get_json()
     refresh_token = data.get("refresh_token")
 

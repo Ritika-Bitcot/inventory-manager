@@ -6,14 +6,37 @@ This folder contains the Week6 version of the Inventory Manager API built using 
 
 ## Features
 
-- RESTful API with Flask
-- PostgreSQL database integration via SQLAlchemy
-- Alembic migrations for schema management
-- Blueprint-based modular structure
-- Environment-based configuration
+1. RESTful API with Flask
+
+2. PostgreSQL database integration via SQLAlchemy
+
+3. Alembic migrations for schema management
+
+4. Blueprint-based modular structure
+
+5. Environment-based configuration
+
+6. JWT Authentication with Access & Refresh tokens
 
 ---
+## API Endpoints
+### 📌 Authentication Endpoints
+| Method | Endpoint         | Description                              | Payload Example                                    |
+| ------ | ---------------- | ---------------------------------------- | -------------------------------------------------- |
+| POST   | `/auth/register` | Register a new user                      | `{ "username": "ritika", "password": "pass123" }`  |
+| POST   | `/auth/login`    | Login and get access + refresh token     | `{ "username": "ritika", "password": "pass123" }`  |
+| POST   | `/auth/refresh`  | Refresh access token using refresh token | *Headers*: `Authorization: Bearer <refresh_token>` |
 
+
+### 📌 Product Endpoints
+
+| Method | Endpoint         | Description             | Payload Example                                                        |
+| ------ | ---------------- | ----------------------- | ---------------------------------------------------------------------- |
+| GET    | `/products`      | Get all products        | —                                                                      |
+| GET    | `/products/<id>` | Get product by ID       | —                                                                      |
+| POST   | `/products`      | Create new product      | `{ "name": "Milk", "category": "food", "quantity": 10, "price": 5.5 }` |
+| PUT    | `/products/<id>` | Update existing product | `{ "name": "Milk", "quantity": 15 }`                                   |
+| DELETE | `/products/<id>` | Delete product          | —                                                                      |
 ---
 
 ## Setup
@@ -53,7 +76,8 @@ FLASK_APP=api.app
 FLASK_ENV=development
 
 JWT_SECRET_KEY=your_secret_key
-JWT_ACCESS_TOKEN_EXPIRES=expire_time_in_seconds
+JWT_ACCESS_TOKEN_EXPIRES=3600   # 1 hour
+JWT_REFRESH_TOKEN_EXPIRES=86400 # 1 day
 ```
 Make sure PostgreSQL is running and the user/password/database exist.
 
@@ -87,6 +111,135 @@ The API will be available at:
 ```
 http://127.0.0.1:5000
 Products API: http://127.0.0.1:5000/products
+```
+
+## API Endpoints
+### 🔐 Authentication
+**Register User**
+
+POST /auth/register
+```
+{
+  "username": "john",
+  "password": "mypassword"
+}
+```
+
+Response:
+```
+{
+  "message": "User registered successfully"
+}
+```
+**Login User**
+
+POST /auth/login
+```
+{
+  "username": "john",
+  "password": "mypassword"
+}
+```
+
+Response:
+```
+{
+  "access_token": "jwt_access_token_here",
+  "refresh_token": "jwt_refresh_token_here",
+  "token_type": "bearer"
+}
+```
+**Refresh Token**
+
+3. POST /auth/refresh
+```
+{
+  "refresh_token": "jwt_refresh_token_here"
+}
+
+```
+Response:
+```
+{
+  "access_token": "new_access_token_here",
+  "token_type": "bearer"
+}
+```
+## 📦 Products
+
+All product endpoints require Authorization header with a valid Bearer access token.
+
+### 1. Get All Products
+
+**GET /products**
+
+Response:
+```
+[
+  {
+    "id": 1,
+    "name": "Milk",
+    "category": "food",
+    "quantity": 10,
+    "price": 5.5
+  },
+  {
+    "id": 2,
+    "name": "Laptop",
+    "category": "electronic",
+    "quantity": 2,
+    "price": 50000
+  }
+]
+```
+### 2. Get Single Product
+
+**GET /products/<id>**
+
+GET /products/1
+
+Create Product
+
+POST /products
+```
+{
+  "name": "Book",
+  "category": "book",
+  "quantity": 5,
+  "price": 299.99
+}
+
+```
+Response:
+```
+{
+  "id": 3,
+  "name": "Book",
+  "category": "book",
+  "quantity": 5,
+  "price": 299.99
+}
+```
+### 3. Update Product
+
+**PUT /products/<id>**
+```
+{
+  "name": "Updated Book",
+  "category": "book",
+  "quantity": 8,
+  "price": 349.99
+}
+```
+### 4. Delete Product
+
+**DELETE /products/<id>**
+
+Response:
+```
+{
+  "message": "Product deleted successfully"
+}
 ```
 
 ## 7. Seed the Database with Sample Products
