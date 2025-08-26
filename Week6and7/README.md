@@ -20,13 +20,11 @@ This folder contains the Week6 version of the Inventory Manager API built using 
 
 ---
 ## API Endpoints
-### 📌 Authentication Endpoints
-| Method | Endpoint         | Description                              | Payload Example                                    |
-| ------ | ---------------- | ---------------------------------------- | -------------------------------------------------- |
-| POST   | `/auth/register` | Register a new user                      | `{ "username": "ritika", "password": "pass123" }`  |
-| POST   | `/auth/login`    | Login and get access + refresh token     | `{ "username": "ritika", "password": "pass123" }`  |
-| POST   | `/auth/refresh`  | Refresh access token using refresh token | *Headers*: `Authorization: Bearer <refresh_token>` |
-
+| Method   | Endpoint         | Description                              | Request Example                                      | Response Example                                                                                                 |
+| -------- | ---------------- | ---------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **POST** | `/auth/register` | Register a new user                      | `{ "username": "ritika", "password": "pass123" }`    | `{ "message": "User registered successfully" }`                                                                  |
+| **POST** | `/auth/login`    | Login and get access + refresh token     | `{ "username": "ritika", "password": "pass123" }`    | `{ "access_token": "<token>", "refresh_token": "<token>", "token_type": "bearer" }`                              |
+| **POST** | `/auth/refresh`  | Refresh access token using refresh token | **Headers**: `Authorization: Bearer <refresh_token>` | `json { "access_token": "<new_access_token>", "refresh_token": "<new_refresh_token>", "token_type": "bearer" } ` |
 
 ### 📌 Product Endpoints
 
