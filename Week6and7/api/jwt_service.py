@@ -12,7 +12,7 @@ class JWTService:
     """
 
     @staticmethod
-    def generate_token(user_id: str, username: str) -> str:
+    def generate_access_token(user_id: str, username: str) -> str:
         """
         Generate a JWT token for the given user.
 
@@ -28,6 +28,18 @@ class JWTService:
             "username": username,
             "exp": datetime.datetime.utcnow()
             + datetime.timedelta(hours=2),  # 2h expiry
+        }
+        secret = current_app.config.get("JWT_SECRET_KEY")
+        return jwt.encode(payload, secret, algorithm="HS256")
+
+    @staticmethod
+    def generate_refresh_token(user_id: str, username: str) -> str:
+        """Generate long-lived refresh token (7 days)."""
+        payload: Dict[str, Any] = {
+            "sub": str(user_id),
+            "username": username,
+            "type": "refresh",
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(days=7),
         }
         secret = current_app.config.get("JWT_SECRET_KEY")
         return jwt.encode(payload, secret, algorithm="HS256")

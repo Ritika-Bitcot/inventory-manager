@@ -4,10 +4,12 @@ from pydantic import BaseModel
 
 
 class LoginResponse(BaseModel):
-    """
-    Schema for returning JWT login response.
-    """
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
 
+
+class RefreshResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 

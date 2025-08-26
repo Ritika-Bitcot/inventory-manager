@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, request
+from jwt import ExpiredSignatureError, InvalidTokenError
 from pydantic import ValidationError
 
 from ..db import db
 from ..jwt_service import JWTService
 from ..models import User
 from ..schemas.request import LoginRequest
-from ..schemas.response import ErrorResponse, LoginResponse
+from ..schemas.response import ErrorResponse, LoginResponse, RefreshResponse
 from ..schemas.user import RegisterRequest
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -73,7 +74,36 @@ def login():
             401,
         )
 
-    # Generate access token
-    token = JWTService.generate_token(str(user.id), user.username)
-    response = LoginResponse(access_token=token)
+    # Generate token
+    access_token = JWTService.generate_access_token(str(user.id), user.username)
+    refresh_token = JWTService.generate_refresh_token(str(user.id), user.username)
+
+    response = LoginResponse(access_token=access_token, refresh_token=refresh_token)
+
     return jsonify(response.model_dump()), 200
+
+
+@auth_bp.route("/refresh", methods=["POST"])
+def refresh():
+    data = request.get_json()
+    refresh_token = data.get("refresh_token")
+
+    if not refresh_token:
+        return jsonify(ErrorResponse(error="Refresh token required").model_dump()), 400
+
+    try:
+        payload = JWTService.validate_token(refresh_token)
+
+        if payload.get("type") != "refresh":
+            return jsonify(ErrorResponse(error="Invalid token type").model_dump()), 401
+
+        access_token = JWTService.generate_access_token(
+            payload["sub"], payload["username"]
+        )
+        response = RefreshResponse(access_token=access_token)
+        return jsonify(response.model_dump()), 200
+
+    except ExpiredSignatureError:
+        return jsonify(ErrorResponse(error="Refresh token expired").model_dump()), 401
+    except InvalidTokenError:
+        return jsonify(ErrorResponse(error="Invalid refresh token").model_dump()), 401
