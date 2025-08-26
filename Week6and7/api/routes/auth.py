@@ -85,6 +85,12 @@ def login() -> tuple:
 
 @auth_bp.route("/refresh", methods=["POST"])
 def refresh() -> tuple:
+    """
+    Refreshes an access token given a valid refresh token.
+
+    Returns a new access token and a new refresh token.
+    If the refresh token is invalid or expired, returns a 401 error.
+    """
     data = request.get_json()
     refresh_token = data.get("refresh_token")
 
