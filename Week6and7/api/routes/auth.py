@@ -34,7 +34,7 @@ def register() -> tuple:
         return jsonify({"error": "Username already taken"}), 400
 
     # Create new user
-    user = User(username=data.username)
+    user = User(username=data.username, role=data.role)
     user.set_password(data.password)
 
     db.session.add(user)
@@ -44,7 +44,11 @@ def register() -> tuple:
         jsonify(
             {
                 "message": "User registered successfully",
-                "user": {"id": user.id, "username": user.username},
+                "user": {
+                    "id": str(user.id),
+                    "username": user.username,
+                    "role": user.role,
+                },
             }
         ),
         201,
@@ -75,8 +79,12 @@ def login() -> tuple:
         )
 
     # Generate token
-    access_token = JWTService.generate_access_token(str(user.id), user.username)
-    refresh_token = JWTService.generate_refresh_token(str(user.id), user.username)
+    access_token = JWTService.generate_access_token(
+        str(user.id), user.username, user.role
+    )
+    refresh_token = JWTService.generate_refresh_token(
+        str(user.id), user.username, user.role
+    )
 
     response = LoginResponse(access_token=access_token, refresh_token=refresh_token)
 

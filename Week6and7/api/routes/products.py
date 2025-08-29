@@ -19,7 +19,7 @@ from api.schemas.response import (
 )
 
 from ..db import db
-from ..decorators import jwt_required
+from ..decorators import jwt_required, roles_required
 from ..models import BookProduct, ElectronicProduct, FoodProduct, Product
 
 bp = Blueprint("productSs", __name__, url_prefix="/api/products")
@@ -84,6 +84,7 @@ def get_product(product_id: int) -> tuple[Any, int]:
 
 
 @bp.route("/", methods=["POST"])
+@roles_required("manager", "admin")
 @jwt_required
 def create_product() -> tuple[Any, int]:
     """
@@ -144,6 +145,7 @@ def create_product() -> tuple[Any, int]:
 
 
 @bp.route("/<int:product_id>", methods=["PUT"])
+@roles_required("manager", "admin")
 @jwt_required
 def update_product(product_id: int) -> tuple[Any, int]:
     """
@@ -206,6 +208,7 @@ def update_product(product_id: int) -> tuple[Any, int]:
 
 
 @bp.route("/<int:product_id>", methods=["DELETE"])
+@roles_required("admin")
 @jwt_required
 def delete_product(product_id: int) -> tuple[Any, int]:
     """

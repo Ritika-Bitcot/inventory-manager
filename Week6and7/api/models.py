@@ -1,7 +1,7 @@
 import uuid
 
 from dateutil.relativedelta import relativedelta
-from sqlalchemy import Column, Date, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, Date, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -154,6 +154,8 @@ class User(db.Model):
 
     __tablename__ = "users"
 
+    ROLE_CHOICES = ("staff", "manager", "admin")
+
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -163,6 +165,11 @@ class User(db.Model):
     )
     username = Column(String(50), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
+    role = Column(
+        Enum(*ROLE_CHOICES, name="user_roles", create_type=True),
+        nullable=False,
+        default="staff",
+    )
 
     def set_password(self, password: str) -> None:
         """
