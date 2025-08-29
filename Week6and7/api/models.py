@@ -17,11 +17,13 @@ class Product(db.Model):
     category = Column(String(20), nullable=False)
     quantity = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
+    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
 
     __mapper_args__ = {
         "polymorphic_on": category,
         "polymorphic_identity": "product",
     }
+    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
 
     def get_total_value(self):
         """
@@ -42,6 +44,7 @@ class Product(db.Model):
             "category": self.category,
             "quantity": self.quantity,
             "price": self.price,
+            "owner_id": self.owner_id,
         }
 
 
@@ -56,7 +59,7 @@ class FoodProduct(Product):
     }
 
     def __init__(
-        self, product_name, category, quantity, price, mfg_date, expiry_date
+        self, product_name, category, quantity, price, mfg_date, expiry_date, owner_id
     ) -> None:
         """
         Initializes a FoodProduct instance with the given arguments.
@@ -70,7 +73,11 @@ class FoodProduct(Product):
             expiry_date (Date): The expiry date of the product.
         """
         super().__init__(
-            product_name=product_name, category=category, quantity=quantity, price=price
+            product_name=product_name,
+            category=category,
+            quantity=quantity,
+            price=price,
+            owner_id=owner_id,
         )
         self.mfg_date = mfg_date
         self.expiry_date = expiry_date
@@ -87,7 +94,14 @@ class ElectronicProduct(Product):
     }
 
     def __init__(
-        self, product_name, category, quantity, price, purchase_date, warranty_period
+        self,
+        product_name,
+        category,
+        quantity,
+        price,
+        purchase_date,
+        warranty_period,
+        owner_id,
     ) -> None:
         """
         Initializes an ElectronicProduct instance with the given arguments.
@@ -101,7 +115,11 @@ class ElectronicProduct(Product):
             warranty_period (int): The warranty period in months.
         """
         super().__init__(
-            product_name=product_name, category=category, quantity=quantity, price=price
+            product_name=product_name,
+            category=category,
+            quantity=quantity,
+            price=price,
+            owner_id=owner_id,
         )
         self.purchase_date = purchase_date
         self.warranty_period = warranty_period
@@ -127,7 +145,14 @@ class BookProduct(Product):
     }
 
     def __init__(
-        self, product_name, category, quantity, price, author, publication_year
+        self,
+        product_name,
+        category,
+        quantity,
+        price,
+        author,
+        publication_year,
+        owner_id,
     ) -> None:
         """
         Initializes a BookProduct instance with the given arguments.
@@ -141,7 +166,11 @@ class BookProduct(Product):
             publication_year (int): The year of publication.
         """
         super().__init__(
-            product_name=product_name, category=category, quantity=quantity, price=price
+            product_name=product_name,
+            category=category,
+            quantity=quantity,
+            price=price,
+            owner_id=owner_id,
         )
         self.author = author
         self.publication_year = publication_year

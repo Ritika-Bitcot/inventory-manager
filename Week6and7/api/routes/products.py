@@ -39,6 +39,7 @@ SCHEMA_MAP: Dict[str, Type] = {
 
 
 @bp.route("/", methods=["GET"])
+@roles_required("staff", "manager", "admin")
 def get_products() -> tuple[Any, int]:
     """
     Fetch all products from the database.
@@ -59,6 +60,7 @@ def get_products() -> tuple[Any, int]:
 
 
 @bp.route("/<int:product_id>", methods=["GET"])
+@roles_required("staff", "manager", "admin")
 def get_product(product_id: int) -> tuple[Any, int]:
     """
     Fetch a single product by its ID.
@@ -107,7 +109,11 @@ def create_product() -> tuple[Any, int]:
         product_data = schema_class(**data)
 
         model_class = CATEGORY_MAP[category]
-        product = model_class(**product_data.model_dump())
+        # Add current user as product owner
+        from flask import g
+
+        current_user = g.current_user
+        product = model_class(**product_data.model_dump(), owner_id=current_user["sub"])
 
         db.session.add(product)
         db.session.commit()
@@ -166,6 +172,21 @@ def update_product(product_id: int) -> tuple[Any, int]:
         product = Product.query.get(product_id)
         if not product:
             return jsonify(ErrorResponse(error="Product not found").model_dump()), 404
+        from flask import g
+
+        current_user = g.current_user
+
+        # Restrict managers from editing other manager’s products
+        if (
+            current_user["role"] == "manager"
+            and str(product.owner_id) != current_user["sub"]
+        ):
+            return (
+                jsonify(
+                    {"error": "Forbidden: cannot modify another manager's product"}
+                ),
+                403,
+            )
 
         data: Dict[str, Any] = request.get_json()
         update_data = ProductUpdate(**data)
