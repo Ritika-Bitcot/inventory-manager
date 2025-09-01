@@ -40,7 +40,8 @@ def create_product_from_row(
 ) -> FoodProduct | ElectronicProduct | BookProduct | None:
     """
     Creates a Product instance based on the given row of data.
-    Adds a default owner_id from .env so tests and seeding work without requiring a user.
+    Adds a default owner_id from .env so tests and
+    seeding work without requiring a user.
     """
     category = row.get("category", "").strip().lower()
     model = CATEGORY_MAP.get(category)
