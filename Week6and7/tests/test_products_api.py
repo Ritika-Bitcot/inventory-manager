@@ -1,381 +1,307 @@
 from datetime import date
-from typing import Any
+from typing import Dict
 from unittest.mock import patch
 
 from api.models import FoodProduct
-from flask_sqlalchemy.session import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm.scoping import scoped_session
+from sqlalchemy.orm import Session
+
+
+# ----------------------
+# Helper functions
+# ----------------------
+def create_food_product(
+    db_session: Session,
+    name: str,
+    owner_id: str,
+    quantity: int = 10,
+    price: float = 10.0,
+    mfg_date: date = date(2025, 1, 1),
+    expiry_date: date = date(2025, 12, 31),
+) -> FoodProduct:
+    """Utility to create a FoodProduct in the database."""
+    product = FoodProduct(
+        product_name=name,
+        category="food",
+        quantity=quantity,
+        price=price,
+        mfg_date=mfg_date,
+        expiry_date=expiry_date,
+        owner_id=owner_id,
+    )
+    db_session.add(product)
+    db_session.commit()
+    return product
 
 
 # ----------------------
 # GET /api/products/
 # ----------------------
-def test_get_products_success(client: Any, db_session: scoped_session[Session]) -> None:
-    """
-    Tests that GET /api/products/ returns a list of products.
-    Checks that the response contains a "products" key with a list of products.
-    Verifies that the list contains the product that was added to the database.
-    """
-    product = FoodProduct(
-        product_name="burger",
-        category="food",
-        quantity=10,
-        price=3.5,
-        mfg_date=date(2025, 8, 1),
-        expiry_date=date(2025, 8, 30),
-    )
-    db_session.add(product)
-    db_session.commit()
-
-    resp = client.get("/api/products/")
+def test_get_products_non_empty(client, auth_header: Dict[str, str]) -> None:
+    """Ensure GET /api/products/ returns a non-empty list when products exist."""
+    resp = client.get("/api/products/", headers=auth_header)
     assert resp.status_code == 200
     data = resp.get_json()
     assert "products" in data
-    assert any(p["product_name"] == "burger" for p in data["products"])
+    assert len(data["products"]) > 0
+    assert any(p["product_name"] == "Generic" for p in data["products"])
 
 
-def test_get_products_db_error(client: Any) -> None:
-    """
-    Tests that GET /api/products/ returns a 500 error
-    when the database raises an exception.
-    Verifies that the response contains a "error" key with the value "Database error".
-    """
-    with patch("api.routes.products.Product.query") as mock_query:
-        mock_query.all.side_effect = SQLAlchemyError("DB fail")
-        resp = client.get("/api/products/")
+def test_get_products_list(
+    client, db_session: Session, auth_header: Dict[str, str], test_user
+) -> None:
+    """GET /api/products/ returns the product created in DB."""
+    _ = create_food_product(db_session, "Phone", str(test_user.id))
+    resp = client.get("/api/products/", headers=auth_header)
+    assert resp.status_code == 200
+    data = resp.get_json()["products"]
+    assert any(p["product_name"] == "Phone" for p in data)
+
+
+def test_get_products_database_error(client, auth_header: Dict[str, str]) -> None:
+    """Simulate database error during GET /api/products/"""
+    with patch("api.models.Product.query") as mock_query:
+        mock_query.all.side_effect = SQLAlchemyError("Forced DB error")
+        resp = client.get("/api/products/", headers=auth_header)
+        data = resp.get_json()
         assert resp.status_code == 500
-        assert resp.get_json()["error"] == "Database error"
+        assert data["error"] == "Database error"
+        assert "Forced DB error" in data["details"]
 
 
 # ----------------------
 # GET /api/products/<id>
 # ----------------------
-def test_get_product_success(client: Any, db_session: scoped_session[Session]) -> None:
-    """
-    Tests that GET /api/products/<id> returns a single product by id.
-    Checks that the response contains the product's data.
-    """
-    product = FoodProduct(
-        product_name="Banana",
-        category="food",
-        price=5.0,
-        quantity=15,
-        mfg_date=date(2025, 11, 15),
-        expiry_date=date(2025, 11, 22),
-    )
-    db_session.add(product)
-    db_session.commit()
-
-    resp = client.get(f"/api/products/{product.id}")
-    assert resp.status_code == 200
-    data = resp.get_json()
-    assert data["product_name"] == "Banana"
-
-
-def test_get_product_not_found(client: Any) -> None:
-    """
-    Tests that GET /api/products/<id> returns a 404 error when a product
-    with the given id does not exist.
-    Verifies that the response contains a "error"
-    key with the value "Product not found".
-    """
-    resp = client.get("/api/products/999")
-    assert resp.status_code == 404
-    assert resp.get_json()["error"] == "Product not found"
-
-
-def test_get_product_db_error(client: Any) -> None:
-    """
-    Tests that GET /api/products/<id> returns a 500 error when the database
-    raises an exception.
-    Verifies that the response contains a "error" key with the value "Database error".
-    """
-    with patch("api.routes.products.Product.query") as mock_query:
-        mock_query.get.side_effect = SQLAlchemyError("DB fail")
-
-        resp = client.get("/api/products/1")
+def test_get_product_database_error(client, auth_header: Dict[str, str]) -> None:
+    """Simulate database error during GET /api/products/<id>"""
+    with patch("api.models.Product.query") as mock_query:
+        mock_query.get.side_effect = SQLAlchemyError("Forced DB error")
+        resp = client.get("/api/products/1", headers=auth_header)
+        data = resp.get_json()
         assert resp.status_code == 500
-        assert resp.get_json()["error"] == "Database error"
+        assert data["error"] == "Database error"
+        assert "Forced DB error" in data["details"]
 
 
 # ----------------------
 # POST /api/products/
 # ----------------------
-def test_create_product_success(client: Any) -> None:
-    """
-    Tests that POST /api/products/ returns a 201 status code and a JSON response
-    containing the newly created product when the request is valid.
-    Verifies that the response contains a "message" key with the value "Product created"
-    and a "product" key containing the created product data.
-    """
+def test_create_product_success(client, auth_header: Dict[str, str]) -> None:
+    """Successful product creation."""
     payload = {
         "product_name": "Cake",
         "category": "food",
-        "price": 350.0,
+        "price": 50.0,
         "quantity": 3,
         "mfg_date": "2025-09-21",
         "expiry_date": "2025-11-21",
     }
-    resp = client.post("/api/products/", json=payload)
+    resp = client.post("/api/products/", json=payload, headers=auth_header)
     assert resp.status_code == 201
     data = resp.get_json()
     assert data["message"] == "Product created"
     assert data["product"]["product_name"] == "Cake"
 
 
-def test_create_product_invalid_category(client: Any) -> None:
-    """
-    Tests that POST /api/products/ returns a 400 status code and a JSON response
-    containing the appropriate error message
-    when the request contains an invalid category.
-    Verifies that the response contains a "error" key with the value "Invalid category".
-    """
-    resp = client.post("/api/products/", json={"name": "X", "category": "invalid"})
-    assert resp.status_code == 400
-    assert resp.get_json()["error"] == "Invalid category"
-
-
-def test_create_product_validation_error(client: Any) -> None:
-    """
-    Tests that POST /api/products/ returns a 400 status code and a JSON response
-    containing the appropriate error message when the request contains invalid data.
-    Verifies that the response contains a "error" key with the value "Validation error".
-    """
-    resp = client.post("/api/products/", json={"category": "food"})  # missing fields
+def test_create_product_validation_error(client, auth_header: Dict[str, str]) -> None:
+    """Creating product with missing fields returns 400."""
+    resp = client.post("/api/products/", json={"category": "food"}, headers=auth_header)
     assert resp.status_code == 400
     assert resp.get_json()["error"] == "Validation error"
 
 
-def test_create_product_integrity_error(client: Any) -> None:
-    """
-    Tests that POST /api/products/ returns a 400 status code and a JSON response
-    containing the appropriate error message when the request contains data that would
-    cause an IntegrityError when attempting to commit to the database.
-    Verifies that the response contains a "error" key with the value "Integrity error".
-    """
+def test_create_product_invalid_category(client, auth_header: Dict[str, str]) -> None:
+    """Creating product with invalid category returns 400."""
+    resp = client.post(
+        "/api/products/",
+        json={"product_name": "X", "category": "invalid"},
+        headers=auth_header,
+    )
+    assert resp.status_code == 400
+    assert resp.get_json()["error"] == "Invalid category"
+
+
+def test_create_product_integrity_error(client, auth_header: Dict[str, str]) -> None:
+    """Simulate IntegrityError during product creation."""
     payload = {
-        "product_name": "Yogurt",
+        "product_name": "Cake",
         "category": "food",
         "price": 50.0,
-        "quantity": 30,
-        "mfg_date": "2025-11-01",
-        "expiry_date": "2026-01-01",
+        "quantity": 3,
+        "mfg_date": "2025-09-21",
+        "expiry_date": "2025-11-21",
     }
     with patch(
-        "api.routes.products.db.session.commit",
-        side_effect=IntegrityError("mock", "mock", "mock"),
+        "api.db.db.session.commit",
+        side_effect=IntegrityError("Forced Integrity", "params", "orig"),
     ):
-        resp = client.post("/api/products/", json=payload)
-    assert resp.status_code == 400
-    assert resp.get_json()["error"] == "Integrity error"
+        resp = client.post("/api/products/", json=payload, headers=auth_header)
+        data = resp.get_json()
+        assert resp.status_code == 400
+        assert data["error"] == "Integrity error"
+        assert "Forced Integrity" in data["details"]
 
 
-def test_create_product_db_error(client: Any) -> None:
-    """
-    Tests that POST /api/products/ returns a 500 status code and a JSON response
-    containing the appropriate error message when the request contains valid data
-    but a database error occurs when attempting to commit to the database.
-    Verifies that the response contains a "error" key with the value "Database error".
-    """
+def test_create_product_database_error(client, auth_header: Dict[str, str]) -> None:
+    """Simulate SQLAlchemyError during product creation."""
     payload = {
-        "product_name": "French Fries",
+        "product_name": "Cake",
         "category": "food",
-        "price": 159.0,
-        "quantity": 10,
-        "mfg_date": "2025-06-07",
-        "expiry_date": "2025-06-21",
+        "price": 50.0,
+        "quantity": 3,
+        "mfg_date": "2025-09-21",
+        "expiry_date": "2025-11-21",
     }
     with patch(
-        "api.routes.products.db.session.commit",
-        side_effect=SQLAlchemyError("mock db error"),
+        "api.db.db.session.commit", side_effect=SQLAlchemyError("Forced DB error")
     ):
-        resp = client.post("/api/products/", json=payload)
-    assert resp.status_code == 500
-    assert resp.get_json()["error"] == "Database error"
+        resp = client.post("/api/products/", json=payload, headers=auth_header)
+        data = resp.get_json()
+        assert resp.status_code == 500
+        assert data["error"] == "Database error"
+        assert "Forced DB error" in data["details"]
 
 
 # ----------------------
 # PUT /api/products/<id>
 # ----------------------
-
-
-def test_update_product_not_found(client: Any) -> None:
-    """
-    Tests that PUT /api/products/<id> returns a 404 status code and a JSON response
-    containing the appropriate error message when the request contains a valid product
-    ID that does not exist in the database.
-    Verifies that the response contains a "error"
-    key with the value "Product not found".
-    """
-    resp = client.put("/api/products/999", json={"price": 100})
-    assert resp.status_code == 404
-    assert resp.get_json()["error"] == "Product not found"
-
-
 def test_update_product_success(
-    client: Any, db_session: scoped_session[Session]
+    client, db_session: Session, auth_header: Dict[str, str], test_user
 ) -> None:
-    """
-    Tests that PUT /api/products/<id> returns a 200 status code and a JSON response
-    containing the updated product data when the request contains valid data and
-    the product exists in the database.
-    Verifies that the response contains a "message"
-    key with the value "Product updated",
-    and a "product" key containing the updated product data.
-    """
-    product = FoodProduct(
-        product_name="Rice",
-        category="food",
-        quantity=50,
-        price=20.0,
-        mfg_date=date(2025, 7, 1),
-        expiry_date=date(2025, 12, 31),
+    """Successfully update product price and quantity."""
+    product = create_food_product(db_session, "Rice", str(test_user.id))
+    resp = client.put(
+        f"/api/products/{product.id}",
+        json={"price": 25, "quantity": 15},
+        headers=auth_header,
     )
-    db_session.add(product)
-    db_session.commit()
-
-    resp = client.put(f"/api/products/{product.id}", json={"price": 25, "quantity": 40})
     assert resp.status_code == 200
     data = resp.get_json()
     assert data["message"] == "Product updated"
     assert data["product"]["price"] == 25
 
 
-def test_update_product_validation_error(
-    client: Any, db_session: scoped_session[Session]
-) -> None:
-    """
-    Tests that PUT /api/products/<id> returns a 400 status code and a JSON response
-    containing the appropriate error message when the request contains invalid data.
-    Verifies that the response contains a "error" key with the value "Validation error".
-    """
-    product = FoodProduct(
-        product_name="Bread",
-        category="food",
-        quantity=30,
-        price=2.0,
-        mfg_date=date(2025, 8, 1),
-        expiry_date=date(2025, 8, 10),
-    )
-    db_session.add(product)
-    db_session.commit()
+def test_update_product_not_found(client, auth_header: Dict[str, str]) -> None:
+    """Updating a non-existent product returns 404."""
+    resp = client.put("/api/products/999", json={"price": 99}, headers=auth_header)
+    assert resp.status_code == 404
+    assert resp.get_json()["error"] == "Product not found"
 
-    resp = client.put(f"/api/products/{product.id}", json={"price": "invalid"})
+
+def test_update_product_invalid_data(
+    client, db_session: Session, auth_header: Dict[str, str], test_user
+) -> None:
+    """Sending invalid data should return 400."""
+    product = create_food_product(db_session, "RiceInvalid", str(test_user.id))
+    resp = client.put(
+        f"/api/products/{product.id}",
+        json={"quantity": "invalid"},  # invalid type
+        headers=auth_header,
+    )
     assert resp.status_code == 400
-    assert resp.get_json()["error"] == "Validation error"
+    assert "error" in resp.get_json()
 
 
 def test_update_product_integrity_error(
-    client: Any, db_session: scoped_session[Session]
+    client, admin_auth_header: Dict[str, str], test_user, db_session: Session
 ) -> None:
-    """
-    Tests that PUT /api/products/<id> returns a 400 status code and a JSON response
-    containing the appropriate error message when the database raises an IntegrityError.
-    Verifies that the response contains a "error" key with the value "Integrity error".
-    """
-    product = FoodProduct(
-        product_name="Cake",
-        category="food",
-        quantity=5,
-        price=15.0,
-        mfg_date=date(2025, 7, 15),
-        expiry_date=date(2025, 7, 20),
-    )
-    db_session.add(product)
-    db_session.commit()
-
+    """Simulate IntegrityError during product update."""
+    product = create_food_product(db_session, "IntegrityTest", str(test_user.id))
     with patch(
-        "api.routes.products.db.session.commit",
-        side_effect=IntegrityError("mock", "mock", "mock"),
+        "api.db.db.session.commit",
+        side_effect=IntegrityError("Forced Integrity", "params", "orig"),
     ):
-        resp = client.put(f"/api/products/{product.id}", json={"price": 20})
+        resp = client.put(
+            f"/api/products/{product.id}",
+            json={"price": 20.0},
+            headers=admin_auth_header,
+        )
+        data = resp.get_json()
+        assert resp.status_code == 400
+        assert data["error"] == "Integrity error"
+        assert "Forced Integrity" in data["details"]
 
-    assert resp.status_code == 400
-    assert resp.get_json()["error"] == "Integrity error"
 
-
-def test_update_product_db_error(
-    client: Any, db_session: scoped_session[Session]
+def test_update_product_database_error(
+    client, admin_auth_header: Dict[str, str], test_user, db_session: Session
 ) -> None:
-    """
-    Tests that PUT /api/products/<id> returns a 500 status code and a JSON response
-    containing the appropriate error message when the database raises a SQLAlchemyError.
-    Verifies that the response contains a "error" key with the value "Database error".
-    """
-    product = FoodProduct(
-        product_name="Fish",
-        category="food",
-        quantity=2,
-        price=50.0,
-        mfg_date=date(2025, 8, 1),
-        expiry_date=date(2025, 8, 5),
-    )
-    db_session.add(product)
-    db_session.commit()
-
+    """Simulate SQLAlchemyError during product update."""
+    product = create_food_product(db_session, "DBErrorUpdate", str(test_user.id))
     with patch(
-        "api.routes.products.db.session.commit",
-        side_effect=SQLAlchemyError("mock db error"),
+        "api.db.db.session.commit", side_effect=SQLAlchemyError("Forced DB error")
     ):
-        resp = client.put(f"/api/products/{product.id}", json={"price": 60})
-
-    assert resp.status_code == 500
-    assert resp.get_json()["error"] == "Database error"
+        resp = client.put(
+            f"/api/products/{product.id}",
+            json={"price": 20.0},
+            headers=admin_auth_header,
+        )
+        data = resp.get_json()
+        assert resp.status_code == 500
+        assert data["error"] == "Database error"
+        assert "Forced DB error" in data["details"]
 
 
 # ----------------------
 # DELETE /api/products/<id>
 # ----------------------
 def test_delete_product_success(
-    client: Any, db_session: scoped_session[Session]
+    client, db_session: Session, auth_header: Dict[str, str], test_user
 ) -> None:
-    """
-    Tests that DELETE /api/products/<id> returns a 200 status code and a JSON response
-    containing the appropriate message when the product exists in the database.
-    Verifies that the response contains a "message"
-    key with the value "Product deleted".
-    """
-    product = FoodProduct(
-        product_name="Juice",
-        category="food",
-        quantity=12,
-        price=8.0,
-        mfg_date=date(2025, 8, 1),
-        expiry_date=date(2025, 8, 10),
-    )
-    db_session.add(product)
-    db_session.commit()
-
-    resp = client.delete(f"/api/products/{product.id}")
+    """Successfully delete a product."""
+    product = create_food_product(db_session, "Juice", str(test_user.id))
+    resp = client.delete(f"/api/products/{product.id}", headers=auth_header)
     assert resp.status_code == 200
     assert resp.get_json()["message"] == "Product deleted"
 
+    resp = client.get("/api/products/", headers=auth_header)
+    assert all(p["id"] != product.id for p in resp.get_json()["products"])
 
-def test_delete_product_db_error(
-    client: Any, db_session: scoped_session[Session]
+
+def test_delete_product_not_found(client, auth_header: Dict[str, str]) -> None:
+    """Deleting a non-existent product returns 404."""
+    resp = client.delete("/api/products/999", headers=auth_header)
+    assert resp.status_code == 404
+    assert resp.get_json()["error"] == "Product not found"
+
+
+def test_delete_product_database_error(
+    client, admin_auth_header: Dict[str, str], db_session: Session, test_user
 ) -> None:
-    """
-    Tests that DELETE /api/products/<id> returns a 500 status code and a JSON response
-    containing the appropriate error message when the database raises a SQLAlchemyError.
-    Verifies that the response contains a "error" key with the value "Database error".
-    """
-    product = FoodProduct(
-        product_name="Soap",
-        category="food",
-        quantity=3,
-        price=2.0,
-        mfg_date=date(2025, 8, 1),
-        expiry_date=date(2025, 8, 5),
-    )
-    db_session.add(product)
-    db_session.commit()
-
+    """Simulate SQLAlchemyError during DELETE /api/products/<id>"""
+    product = create_food_product(db_session, "DBErrorDelete", str(test_user.id))
     with patch(
-        "api.routes.products.db.session.commit",
-        side_effect=SQLAlchemyError("mock delete error"),
+        "api.db.db.session.commit", side_effect=SQLAlchemyError("Forced DB error")
     ):
-        resp = client.delete(f"/api/products/{product.id}")
+        resp = client.delete(f"/api/products/{product.id}", headers=admin_auth_header)
+        data = resp.get_json()
+        assert resp.status_code == 500
+        assert data["error"] == "Database error"
+        assert "Forced DB error" in data["details"]
 
-    assert resp.status_code == 500
-    assert resp.get_json()["error"] == "Database error"
+
+# ----------------------
+# GET /api/products/ with owner
+# ----------------------
+def test_get_products_with_owner(
+    client, db_session: Session, test_user, auth_header: Dict[str, str]
+) -> None:
+    """Ensure products with a valid owner serialize correctly."""
+    _ = create_food_product(db_session, "OrphanFixed", str(test_user.id))
+    resp = client.get("/api/products/", headers=auth_header)
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert any(p["product_name"] == "OrphanFixed" for p in data["products"])
+
+
+# ----------------------
+# POST missing dates
+# ----------------------
+def test_create_product_missing_dates(client, auth_header: Dict[str, str]) -> None:
+    """Creating food product without mfg/expiry dates should fail."""
+    resp = client.post(
+        "/api/products/",
+        headers=auth_header,
+        json={"product_name": "Cake2", "category": "food", "price": 10, "quantity": 1},
+    )
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()

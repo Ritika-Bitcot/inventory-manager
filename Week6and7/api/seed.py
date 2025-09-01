@@ -1,9 +1,9 @@
-# Week6/api/seed.py
 import csv
 import os
 from datetime import date
 
 import click
+from dotenv import load_dotenv
 from flask import Flask
 from flask.cli import with_appcontext
 
@@ -11,12 +11,12 @@ from api.config import BaseConfig
 from api.db import db
 from api.models import BookProduct, ElectronicProduct, FoodProduct
 
-# ---------- Flask App Setup ----------
+load_dotenv()
+
 app = Flask(__name__)
 app.config.from_object(BaseConfig)
 db.init_app(app)
 
-# ---------- CSV Path ----------
 CSV_FILE = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "data", "products.csv"
 )
@@ -27,6 +27,8 @@ CATEGORY_MAP = {
     "book": BookProduct,
 }
 
+DEFAULT_OWNER_ID = os.getenv("DEFAULT_OWNER_ID", "00000000-0000-0000-0000-000000000000")
+
 
 # ---------- Helper: Create Product ----------
 def create_product_from_row(
@@ -34,12 +36,8 @@ def create_product_from_row(
 ) -> FoodProduct | ElectronicProduct | BookProduct | None:
     """
     Creates a Product instance based on the given row of data.
-
-    Args:
-        row (dict): A dictionary of product data from a CSV row.
-
-    Returns:
-        Product: An instance of FoodProduct, ElectronicProduct, or BookProduct.
+    Adds a default owner_id from .env so tests and
+    seeding work without requiring a user.
     """
     category = row.get("category", "").strip().lower()
     model = CATEGORY_MAP.get(category)
@@ -48,14 +46,19 @@ def create_product_from_row(
         return None
 
     try:
+        base_kwargs = {
+            "product_name": row["product_name"].strip(),
+            "category": category,
+            "quantity": int(row["quantity"]),
+            "price": float(row["price"]),
+            "owner_id": DEFAULT_OWNER_ID,
+        }
+
         if category == "food":
             mfg_date = date.fromisoformat(row["mfg_date"].strip())
             expiry_date = date.fromisoformat(row["expiry_date"].strip())
             return FoodProduct(
-                product_name=row["product_name"].strip(),
-                category=category,
-                quantity=int(row["quantity"]),
-                price=float(row["price"]),
+                **base_kwargs,
                 mfg_date=mfg_date,
                 expiry_date=expiry_date,
             )
@@ -63,19 +66,13 @@ def create_product_from_row(
             purchase_date = date.fromisoformat(row["purchase_date"].strip())
             warranty_period = int(row["warranty_period"])
             return ElectronicProduct(
-                product_name=row["product_name"].strip(),
-                category=category,
-                quantity=int(row["quantity"]),
-                price=float(row["price"]),
+                **base_kwargs,
                 purchase_date=purchase_date,
                 warranty_period=warranty_period,
             )
         elif category == "book":
             return BookProduct(
-                product_name=row["product_name"].strip(),
-                category=category,
-                quantity=int(row["quantity"]),
-                price=float(row["price"]),
+                **base_kwargs,
                 author=row["author"].strip(),
                 publication_year=int(row["publication_year"]),
             )

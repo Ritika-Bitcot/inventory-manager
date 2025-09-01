@@ -41,3 +41,42 @@ def jwt_required(fn: Callable) -> Callable:
         return fn(*args, **kwargs)
 
     return wrapper
+
+
+def roles_required(*allowed_roles: str) -> Callable:
+    """
+    Decorator to restrict access based on user roles.
+
+    Example:
+        @roles_required("admin", "manager")
+    """
+
+    def decorator(fn: Callable) -> Callable:
+        @wraps(fn)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            auth_header = request.headers.get("Authorization")
+            if not auth_header or not auth_header.startswith("Bearer "):
+                return (
+                    jsonify({"error": "Authorization header missing or invalid"}),
+                    401,
+                )
+
+            token = auth_header.split(" ")[1]
+
+            try:
+                payload = JWTService.validate_token(token)
+                g.current_user = payload
+            except ExpiredSignatureError:
+                return jsonify({"error": "Token expired"}), 401
+            except InvalidTokenError:
+                return jsonify({"error": "Invalid token"}), 401
+
+            user_role = payload.get("role")
+            if user_role not in allowed_roles:
+                return jsonify({"error": "Forbidden: insufficient permissions"}), 403
+
+            return fn(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
