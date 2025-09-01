@@ -54,7 +54,6 @@ def roles_required(*allowed_roles: str) -> Callable:
     def decorator(fn: Callable) -> Callable:
         @wraps(fn)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            # First check JWT
             auth_header = request.headers.get("Authorization")
             if not auth_header or not auth_header.startswith("Bearer "):
                 return (

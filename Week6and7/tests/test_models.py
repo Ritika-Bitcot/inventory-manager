@@ -12,6 +12,15 @@ from sqlalchemy.exc import IntegrityError
 # Product Tests
 # ----------------------
 def test_product_total_value_and_serialize(db_session, test_user) -> None:
+    """
+    Test that creating a Product and serializing it succeeds.
+
+    The test case creates a Product with valid fields and verifies that
+    the fields are correctly set and the total value is calculated correctly.
+    The test also verifies that the serialize method returns
+    a JSON-serializable dictionary
+    representation of the product.
+    """
     product = Product(
         product_name="Generic",
         category="product",
@@ -32,6 +41,11 @@ def test_product_total_value_and_serialize(db_session, test_user) -> None:
 
 
 def test_product_missing_required_fields(db_session) -> None:
+    """
+    Test that creating a Product with missing required fields raises an IntegrityError.
+
+    A Product requires the owner_id field to be set.
+    """
     with pytest.raises(IntegrityError):
         p = Product(category="product", quantity=1, price=10)  # missing owner_id
         db_session.add(p)
@@ -42,6 +56,9 @@ def test_product_missing_required_fields(db_session) -> None:
 # FoodProduct Tests
 # ----------------------
 def test_food_product_creation_and_serialize(db_session, test_user) -> None:
+    """
+    Ensure FoodProduct instance can be created and serialized correctly.
+    """
     mfg = date.today()
     expiry = mfg + timedelta(days=10)
     food = FoodProduct(
@@ -67,6 +84,13 @@ def test_food_product_creation_and_serialize(db_session, test_user) -> None:
 
 
 def test_food_product_invalid_dates(db_session, test_user) -> None:
+    """
+    Test that creating a FoodProduct instance with invalid dates raises
+    a ValidationError. The test creates a FoodProduct instance with a
+    manufacturing date after the expiry date, and asserts that the
+    expiry_date attribute is set to a value that is earlier than the
+    current date.
+    """
     mfg = date.today()
     expiry = mfg - timedelta(days=1)
     food = FoodProduct(
@@ -87,6 +111,14 @@ def test_food_product_invalid_dates(db_session, test_user) -> None:
 # ElectronicProduct Tests
 # ----------------------
 def test_electronic_product_creation_and_warranty(db_session, test_user) -> None:
+    """
+    Ensure that creating an ElectronicProduct instance with valid data succeeds.
+
+    This test case creates an ElectronicProduct instance with valid values for
+    purchase_date, warranty_period, and other required fields. It then asserts
+    that the instance attributes are correctly set and that the
+    get_warranty_end_date() method returns the correct value.
+    """
     purchase = date.today()
     electronic = ElectronicProduct(
         product_name="Laptop",
@@ -106,6 +138,12 @@ def test_electronic_product_creation_and_warranty(db_session, test_user) -> None
 
 
 def test_electronic_product_missing_fields(db_session, test_user) -> None:
+    """
+    Test creating an ElectronicProduct instance with missing required fields.
+
+    Ensures that attempting to create an ElectronicProduct instance with a missing
+    purchase_date raises an IntegrityError.
+    """
     with pytest.raises(IntegrityError):
         e = ElectronicProduct(
             product_name="Phone",
@@ -124,6 +162,12 @@ def test_electronic_product_missing_fields(db_session, test_user) -> None:
 # BookProduct Tests
 # ----------------------
 def test_book_product_creation(db_session, test_user) -> None:
+    """
+    Test that creating a BookProduct with valid fields succeeds.
+
+    The test case creates a BookProduct with valid fields and verifies that
+    the fields are correctly set and the total value is calculated correctly.
+    """
     book = BookProduct(
         product_name="Python 101",
         category="book",
@@ -142,6 +186,12 @@ def test_book_product_creation(db_session, test_user) -> None:
 
 
 def test_book_product_missing_fields(db_session, test_user) -> None:
+    """
+    Test that creating a BookProduct with
+    missing required fields raises an IntegrityError.
+
+    A BookProduct requires the author and publication_year fields to be set.
+    """
     with pytest.raises(IntegrityError):
         b = BookProduct(
             product_name="Python Advanced",

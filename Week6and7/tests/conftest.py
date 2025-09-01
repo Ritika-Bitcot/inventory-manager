@@ -1,6 +1,7 @@
 import random
 import string
 import uuid
+from typing import Dict
 
 import pytest
 from api.app import create_app
@@ -17,7 +18,7 @@ def app():
     Uses the TestingConfig (PostgreSQL test database).
     """
     app = create_app(TestingConfig)
-    app.config["JWT_SECRET_KEY"] = "test-secret"  # required for JWTService
+    app.config["JWT_SECRET_KEY"] = "test-secret"
 
     with app.app_context():
         db.create_all()
@@ -55,7 +56,7 @@ def db_session(app):
 
 
 @pytest.fixture
-def test_user(db_session):
+def test_user(db_session) -> User:
     """
     Create a test user with role=admin by default.
     """
@@ -72,7 +73,7 @@ def test_user(db_session):
 
 
 @pytest.fixture
-def staff_user(db_session):
+def staff_user(db_session) -> User:
     """
     Create a staff role user.
     """
@@ -94,7 +95,7 @@ def staff_user(db_session):
 
 
 @pytest.fixture
-def auth_header(test_user, app):
+def auth_header(test_user, app) -> Dict[str, str]:
     """Generate Authorization header for default admin test user."""
     with app.app_context():
         token = JWTService.generate_access_token(
@@ -106,7 +107,7 @@ def auth_header(test_user, app):
 
 
 @pytest.fixture
-def staff_auth_header(staff_user, app):
+def staff_auth_header(staff_user, app) -> Dict[str, str]:
     """Authorization header for staff user."""
     with app.app_context():
         token = JWTService.generate_access_token(
@@ -118,7 +119,7 @@ def staff_auth_header(staff_user, app):
 
 
 @pytest.fixture
-def admin_auth_header(test_user, app):
+def admin_auth_header(test_user, app) -> Dict[str, str]:
     """Authorization header for admin user."""
     with app.app_context():
         token = JWTService.generate_access_token(

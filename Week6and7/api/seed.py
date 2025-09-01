@@ -3,7 +3,7 @@ import os
 from datetime import date
 
 import click
-from dotenv import load_dotenv  # 👈 new import
+from dotenv import load_dotenv
 from flask import Flask
 from flask.cli import with_appcontext
 
@@ -11,15 +11,12 @@ from api.config import BaseConfig
 from api.db import db
 from api.models import BookProduct, ElectronicProduct, FoodProduct
 
-# ---------- Load Env ----------
 load_dotenv()
 
-# ---------- Flask App Setup ----------
 app = Flask(__name__)
 app.config.from_object(BaseConfig)
 db.init_app(app)
 
-# ---------- CSV Path ----------
 CSV_FILE = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "data", "products.csv"
 )
@@ -30,7 +27,6 @@ CATEGORY_MAP = {
     "book": BookProduct,
 }
 
-# ---------- Default Owner ----------
 DEFAULT_OWNER_ID = os.getenv("DEFAULT_OWNER_ID", "00000000-0000-0000-0000-000000000000")
 
 
@@ -55,7 +51,7 @@ def create_product_from_row(
             "category": category,
             "quantity": int(row["quantity"]),
             "price": float(row["price"]),
-            "owner_id": DEFAULT_OWNER_ID,  # 👈 pulled from env
+            "owner_id": DEFAULT_OWNER_ID,
         }
 
         if category == "food":

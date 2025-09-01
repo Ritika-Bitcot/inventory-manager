@@ -24,7 +24,7 @@ def fake_csv_content() -> str:
 
 
 @pytest.fixture
-def mock_open_csv(mocker: MockerFixture, fake_csv_content: str):
+def mock_open_csv(mocker: MockerFixture, fake_csv_content: str) -> MockerFixture:
     """
     Patch builtins.open to return fake CSV content.
     """
@@ -32,7 +32,7 @@ def mock_open_csv(mocker: MockerFixture, fake_csv_content: str):
 
 
 @pytest.fixture
-def mock_db_session(mocker: MockerFixture):
+def mock_db_session(mocker: MockerFixture) -> MockerFixture:
     """
     Patch db.session and db.create_all with a MagicMock to avoid real DB operations.
     """
