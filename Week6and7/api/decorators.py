@@ -43,7 +43,7 @@ def jwt_required(fn: Callable) -> Callable:
     return wrapper
 
 
-def roles_required(*allowed_roles: str):
+def roles_required(*allowed_roles: str) -> Callable:
     """
     Decorator to restrict access based on user roles.
 
