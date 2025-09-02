@@ -48,7 +48,7 @@ inventory-manager/
 │ ├── conftest.py
 | ├── test_inventory.py
 |
-├── Week6&7/
+├── Week6and7/
 │   ├── data/
 │   │   ├── products.csv
 │   ├── api/
@@ -58,6 +58,8 @@ inventory-manager/
 │   │   ├── models.py
 │   |   ├── seed.py
 │   |   ├── db.py
+│   |   ├── decorators.py
+│   |   ├── jwt_service.py
 |   │   ├── schemas/ 
 │   │   |   ├── __init__.py
 │   |   |   ├── request.py
@@ -66,7 +68,7 @@ inventory-manager/
 │   │   ├── routes/
 │   │   │   ├── __init__.py
 │   │   │   └── products.py
-│   │   │   └── auth.py            
+│   │   │   └── auth.py       
 │   ├── tests/ 
 │   │   |   ├── __init__.py
 │   |   |   ├── conftest.py
