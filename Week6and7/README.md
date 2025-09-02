@@ -76,6 +76,8 @@ FLASK_ENV=development
 JWT_SECRET_KEY=your_secret_key
 JWT_ACCESS_TOKEN_EXPIRES=3600   # 1 hour
 JWT_REFRESH_TOKEN_EXPIRES=86400 # 1 day
+
+DEFAULT_OWNER_ID="your_owner_id"
 ```
 Make sure PostgreSQL is running and the user/password/database exist.
 
