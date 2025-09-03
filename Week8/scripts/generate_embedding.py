@@ -4,6 +4,7 @@ import sys
 from typing import List, Tuple
 
 import psycopg2
+from constant import MODEL_NAME_EMBEDDING
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
 from psycopg2.extensions import connection, cursor
@@ -84,7 +85,7 @@ def generate_embedding(client: OpenAI, text: str) -> List[float]:
         OpenAIError: If the embedding API call fails.
     """
     try:
-        response = client.embeddings.create(model="text-embedding-3-small", input=text)
+        response = client.embeddings.create(model=MODEL_NAME_EMBEDDING, input=text)
         embedding = response.data[0].embedding
 
         if len(embedding) != 1536:
