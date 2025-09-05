@@ -25,18 +25,3 @@ PGVECTOR_COLLECTION_NAME = "product_embeddings"
 # ==========================
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
-
-# ==========================
-# RAG Prompt
-# ==========================
-RAG_PROMPT_TEMPLATE: str = """
-You are a helpful assistant. Use the provided context to answer the question.
-
-Context:
-{context}
-
-Question:
-{question}
-
-Answer:
-"""

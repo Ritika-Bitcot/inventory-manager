@@ -2,10 +2,11 @@
 import logging
 import os
 
-from constant import MODEL_NAME_EMBEDDING, PGVECTOR_COLLECTION_NAME
 from dotenv import load_dotenv
 from langchain_community.vectorstores.pgvector import PGVector
 from langchain_openai import OpenAIEmbeddings
+
+from .constant import MODEL_NAME_EMBEDDING, PGVECTOR_COLLECTION_NAME
 
 load_dotenv()
 logger = logging.getLogger(__name__)
