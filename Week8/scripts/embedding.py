@@ -2,18 +2,19 @@
 import logging
 from typing import Dict, List
 
-from constant import (
-    CHUNK_OVERLAP,
-    CHUNK_SIZE,
-    MODEL_NAME_EMBEDDING,
-    PGVECTOR_COLLECTION_NAME,
-)
-from db_utils import get_db_url
 from dotenv import load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.pgvector import PGVector
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
+from scripts.db_utils import get_db_url
+
+from .constant import (
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    MODEL_NAME_EMBEDDING,
+    PGVECTOR_COLLECTION_NAME,
+)
 
 load_dotenv()
 logger = logging.getLogger(__name__)
