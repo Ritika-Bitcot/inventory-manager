@@ -1,26 +1,33 @@
-from constant import MODEL_NAME, RAG_PROMPT_TEMPLATE
-from langchain.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+# Week8/scripts/rag_chain.py
+import logging
+
+from constant import (
+    OPENAI_CHAT_MODEL,
+    OPENAI_TEMPERATURE,
+    RAG_PROMPT_TEMPLATE,
+)
+from dotenv import load_dotenv
+from langchain.schema import StrOutputParser
+from langchain_community.vectorstores.pgvector import PGVector
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI
 
+load_dotenv()
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-class RAGChainBuilder:
-    """Builds the RAG chain using LCEL."""
 
-    def __init__(self, retriever) -> None:
-        self.retriever = retriever
-        self.prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
-        self.model = ChatOpenAI(model=MODEL_NAME)
+def build_rag_chain(vector_store: PGVector) -> ChatOpenAI:
+    """Build a Retrieval-Augmented Generation (RAG) chain."""
+    retriever = vector_store.as_retriever()
+    prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
+    llm = ChatOpenAI(model=OPENAI_CHAT_MODEL, temperature=OPENAI_TEMPERATURE)
 
-    def build_chain(self):
-        """Build LCEL chain: {context, question} -> prompt -> model -> parser"""
-        return (
-            {
-                "context": self.retriever,
-                "question": RunnablePassthrough(),
-            }
-            | self.prompt
-            | self.model
-            | StrOutputParser()
-        )
+    chain = (
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+    return chain

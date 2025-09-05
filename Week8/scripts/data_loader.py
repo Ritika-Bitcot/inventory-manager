@@ -1,34 +1,59 @@
+# Week8/scripts/data_loader.py
 import logging
-from typing import List
+import os
+import sys
+from typing import Dict, List
 
-from api.models import Product
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from api.models import BookProduct, ElectronicProduct, FoodProduct, Product
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
+
+load_dotenv()
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
-class ProductDataLoader:
-    """Handles loading of product data from the database."""
+def load_products(db_url: str) -> List[Dict]:
+    """
+    Load all products (Food, Electronic, Book) from the database
+    and return a list of dicts with product_id, name, and combined description.
+    """
+    engine = create_engine(db_url)
+    products_list: List[Dict] = []
 
-    def __init__(self, app, db) -> None:
-        self.app = app
-        self.db = db
+    with Session(engine) as session:
+        all_products = session.scalars(select(Product)).all()
 
-    def load(self) -> List[str]:
-        """Load product data (name + category) from database."""
-        try:
-            with self.app.app_context():
-                products = Product.query.all()
-                if not products:
-                    raise ValueError("No products found in database")
+        for p in all_products:
+            description_parts = [
+                f"Category: {p.category}" if getattr(p, "category", None) else "",
+                f"Price: {p.price}" if getattr(p, "price", None) else "",
+                f"Quantity: {p.quantity}" if getattr(p, "quantity", None) else "",
+            ]
 
-                text_entries = [
-                    f"{p.product_name.strip()} {p.category.strip()}".strip()
-                    for p in products
-                    if p.product_name
-                ]
+            # Polymorphic fields
+            if isinstance(p, FoodProduct):
+                description_parts.append(f"Expiry Date: {p.expiry_date}")
+                description_parts.append(f"MFG Date: {p.mfg_date}")
+            elif isinstance(p, ElectronicProduct):
+                description_parts.append(f"Purchase Date: {p.purchase_date}")
+                description_parts.append(f"Warranty: {p.warranty_period} months")
+            elif isinstance(p, BookProduct):
+                description_parts.append(f"Author: {p.author}")
+                description_parts.append(f"Publication Year: {p.publication_year}")
 
-                if not text_entries:
-                    raise ValueError("No valid product entries found in database")
+            description = " | ".join([part for part in description_parts if part])
 
-                return text_entries
-        except Exception as e:
-            logging.error("Error loading product data from DB: %s", str(e))
-            raise
+            products_list.append(
+                {
+                    "product_id": p.id,
+                    "product_name": p.product_name,
+                    "description": description,
+                }
+            )
+
+    logger.info(f"Loaded {len(products_list)} products from database.")
+    return products_list

@@ -1,6 +1,6 @@
+# Week8/scripts/embedding.py
 import logging
-import os
-from typing import List
+from typing import Dict, List
 
 from constant import (
     CHUNK_OVERLAP,
@@ -8,40 +8,52 @@ from constant import (
     MODEL_NAME_EMBEDDING,
     PGVECTOR_COLLECTION_NAME,
 )
+from db_utils import get_db_url
+from dotenv import load_dotenv
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.pgvector import PGVector
+from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from psycopg2.extensions import connection
+
+load_dotenv()
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
-class EmbeddingPipeline:
-    """Handles text chunking, embedding, and storage in pgvector."""
+def embed_and_store(products: List[Dict]) -> None:
+    """
+    Embed new products and add them to the existing PGVector collection.
+    """
+    db_url = get_db_url()
+    logger.info("Initializing OpenAI embeddings...")
+    embeddings = OpenAIEmbeddings(model=MODEL_NAME_EMBEDDING)
 
-    def __init__(self, conn: connection) -> None:
-        self.conn = conn
-        self.embedding_model = OpenAIEmbeddings(model=MODEL_NAME_EMBEDDING)
+    logger.info("Splitting product data into chunks...")
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
+    )
 
-    def store_embeddings(self, texts: List[str]) -> PGVector:
-        try:
-            splitter = RecursiveCharacterTextSplitter(
-                chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
+    documents: list[Document] = []
+    for product in products:
+        content = f"{product['product_name']}\n{product['description']}"
+        for chunk in text_splitter.split_text(content):
+            documents.append(
+                Document(
+                    page_content=chunk,
+                    metadata={
+                        "product_id": product["product_id"],
+                        "name": product["product_name"],
+                    },
+                )
             )
-            chunks = splitter.split_text("\n".join(texts))
 
-            connection_string = (
-                f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-                f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-            )
+    logger.info(f"Generated {len(documents)} chunks for embedding.")
 
-            vectorstore = PGVector.from_texts(
-                embedding=self.embedding_model,
-                texts=chunks,
-                collection_name=PGVECTOR_COLLECTION_NAME,
-                connection_string=connection_string,
-            )
+    vector_store = PGVector(
+        connection_string=db_url,
+        collection_name=PGVECTOR_COLLECTION_NAME,
+        embedding_function=embeddings,
+    )
 
-            logging.info("✅ Successfully stored %d chunks in pgvector", len(chunks))
-            return vectorstore
-        except Exception as e:
-            logging.error("Error generating or storing embeddings: %s", str(e))
-            raise
+    vector_store.add_documents(documents)
+    logger.info("✅ Embeddings successfully stored in PGVector.")

@@ -1,33 +1,38 @@
+# Week8/scripts/db_utils.py
 import logging
 import os
-import sys
 
-import psycopg2
-from api.config import BaseConfig
-from api.db import db
-from flask import Flask
-from psycopg2.extensions import connection, cursor
+from constant import MODEL_NAME_EMBEDDING, PGVECTOR_COLLECTION_NAME
+from dotenv import load_dotenv
+from langchain_community.vectorstores.pgvector import PGVector
+from langchain_openai import OpenAIEmbeddings
 
-
-def connect_db() -> tuple[connection, cursor]:
-    """Establish a connection to the PostgreSQL database."""
-    try:
-        conn = psycopg2.connect(
-            dbname=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            host=os.getenv("DB_HOST"),
-            port=os.getenv("DB_PORT"),
-        )
-        return conn, conn.cursor()
-    except psycopg2.Error as e:
-        logging.error("❌ Database connection failed: %s", e)
-        sys.exit(1)
+load_dotenv()
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
-def init_flask_app():
-    """Initialize Flask app with SQLAlchemy."""
-    app = Flask(__name__)
-    app.config.from_object(BaseConfig)
-    db.init_app(app)
-    return app, db
+def get_db_url() -> str:
+    """
+    Return the database URL.
+    """
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        raise ValueError("DATABASE_URL not found in environment variables")
+    return db_url
+
+
+def load_vector_store(collection_name: str = PGVECTOR_COLLECTION_NAME) -> PGVector:
+    """
+    Load the vector store from a Postgres database.
+    """
+    db_url = get_db_url()
+    logger.info(f"Loading vector store from collection '{collection_name}'...")
+
+    embeddings = OpenAIEmbeddings(model=MODEL_NAME_EMBEDDING)
+    vector_store = PGVector(
+        collection_name=collection_name,
+        connection_string=db_url,
+        embedding_function=embeddings,
+    )
+    return vector_store
