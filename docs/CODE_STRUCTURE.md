@@ -99,7 +99,10 @@ inventory-manager/
 │   │   ├── routes/
 │   │   │   ├── __init__.py
 │   │   │   └── products.py
-│   │   │   └── auth.py       
+│   │   │   └── auth.py   
+│   │   │   └── chat.py   
+│   ├── prompts/ 
+│   │   |   ├──system_prompt.py
 │   ├── scripts/ 
 │   │   |   ├──rag_pipeline.py
 │   |   |   ├── db_utils.py
