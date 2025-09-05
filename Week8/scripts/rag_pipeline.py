@@ -52,16 +52,12 @@ def main() -> None:
     logger.info("Building RAG chain...")
     rag_chain = build_rag_chain(vector_store)
 
-    question = "What is price of iphone 14?"
+    question = "What products available in food category?"
     logger.info(f"Asking RAG chain: {question}")
     answer = rag_chain.invoke(question)
 
-    # Final clean output
-    print("\n" + "=" * 50)
-    print("                 📦 RAG Answer")
-    print("=" * 50)
+    print("\n=== RAG Answer ===")
     print(answer)
-    print("=" * 50 + "\n")
 
 
 if __name__ == "__main__":
