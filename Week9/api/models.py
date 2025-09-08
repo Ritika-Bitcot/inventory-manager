@@ -1,7 +1,18 @@
 import uuid
+from datetime import datetime, timezone
 
 from dateutil.relativedelta import relativedelta
-from sqlalchemy import Column, Date, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -176,3 +187,16 @@ class User(db.Model):
             "username": self.username,
             "role": self.role,
         }
+
+
+class LLMCache(db.Model):
+    __tablename__ = "llm_cache"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(UUID(as_uuid=True), nullable=True)
+    model = Column(String(50), nullable=False)
+    prompt = Column(Text, nullable=False)
+    response = Column(Text, nullable=False)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True
+    )
