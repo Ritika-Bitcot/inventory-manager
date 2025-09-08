@@ -21,14 +21,19 @@ logging.basicConfig(level=logging.INFO)
 
 def build_rag_chain(vector_store: PGVector) -> ChatOpenAI:
     """Build a Retrieval-Augmented Generation (RAG) chain."""
-    retriever = vector_store.as_retriever(search_kwargs={"k": 10})
-    prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
-    llm = ChatOpenAI(model=OPENAI_CHAT_MODEL, temperature=OPENAI_TEMPERATURE)
+    try:
+        retriever = vector_store.as_retriever(search_kwargs={"k": 10})
+        prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
+        llm = ChatOpenAI(model=OPENAI_CHAT_MODEL, temperature=OPENAI_TEMPERATURE)
 
-    chain = (
-        {"context": retriever, "question": RunnablePassthrough()}
-        | prompt
-        | llm
-        | StrOutputParser()
-    )
-    return chain
+        chain = (
+            {"context": retriever, "question": RunnablePassthrough()}
+            | prompt
+            | llm
+            | StrOutputParser()
+        )
+        return chain
+
+    except Exception as e:
+        logger.error(f"Error building RAG chain: {e}", exc_info=True)
+        raise
