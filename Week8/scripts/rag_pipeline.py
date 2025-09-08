@@ -28,36 +28,49 @@ def main() -> None:
     3. Build RAG chain using updated embeddings.
     4. Example query to RAG chain.
     """
-    logger.info("Loading vector store...")
-    vector_store = load_vector_store()
-
-    db_url = get_db_url()
-    products = load_products(db_url)
-
-    # Get product IDs that already exist in vector store
-    existing_docs = vector_store.similarity_search("", k=1000)
-    existing_ids = {doc.metadata.get("product_id") for doc in existing_docs}
-
-    # Find new products not yet embedded
-    new_products = [p for p in products if p["product_id"] not in existing_ids]
-
-    if new_products:
-        logger.info(f"Found {len(new_products)} new products. Embedding them now...")
-        embed_and_store(new_products)
+    try:
+        logger.info("Loading vector store...")
         vector_store = load_vector_store()
 
-    else:
-        logger.info("No new products to embed.")
+        db_url = get_db_url()
+        products = load_products(db_url)
 
-    logger.info("Building RAG chain...")
-    rag_chain = build_rag_chain(vector_store)
+        if not products:
+            logger.warning("No products found in database.")
+            return
 
-    question = "What products available in food category?"
-    logger.info(f"Asking RAG chain: {question}")
-    answer = rag_chain.invoke(question)
+        # Get product IDs that already exist in vector store
+        existing_docs = vector_store.similarity_search("", k=1000)
+        existing_ids = {doc.metadata.get("product_id") for doc in existing_docs}
 
-    print("\n=== RAG Answer ===")
-    print(answer)
+        # Find new products not yet embedded
+        new_products = [p for p in products if p["product_id"] not in existing_ids]
+
+        if new_products:
+            logger.info(
+                f"Found {len(new_products)} new products. Embedding them now..."
+            )
+            embed_and_store(new_products)
+            vector_store = load_vector_store()
+
+        else:
+            logger.info("No new products to embed.")
+
+        logger.info("Building RAG chain...")
+        rag_chain = build_rag_chain(vector_store)
+
+        question = "What products available in food category?"
+        logger.info(f"Asking RAG chain: {question}")
+        try:
+            answer = rag_chain.invoke(question)
+
+            print("\n=== RAG Answer ===")
+            print(answer)
+        except Exception as e:
+            logger.error(f"Error invoking RAG chain: {e}", exc_info=True)
+
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
 
 
 if __name__ == "__main__":
