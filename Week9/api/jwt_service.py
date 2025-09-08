@@ -25,6 +25,7 @@ class JWTService:
         """
         payload: Dict[str, Any] = {
             "sub": str(user_id),
+            "id": str(user_id),
             "username": username,
             "role": role,
             "exp": datetime.datetime.utcnow()
@@ -38,6 +39,7 @@ class JWTService:
         """Generate long-lived refresh token (7 days)."""
         payload: Dict[str, Any] = {
             "sub": str(user_id),
+            "id": str(user_id),
             "username": username,
             "role": role,
             "type": "refresh",

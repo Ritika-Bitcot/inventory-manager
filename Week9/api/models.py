@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import (
@@ -200,3 +200,10 @@ class LLMCache(db.Model):
     created_at = Column(
         DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True
     )
+    expires_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.utcnow() + timedelta(hours=1)
+    )
+
+    def is_expired(self) -> bool:
+        """Check if this cache entry is expired."""
+        return datetime.now(timezone.utc) >= self.expires_at

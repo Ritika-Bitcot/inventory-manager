@@ -112,11 +112,12 @@ def refresh() -> tuple:
             return jsonify(ErrorResponse(error="Invalid token type").model_dump()), 401
 
         access_token = JWTService.generate_access_token(
-            payload["sub"], payload["username"], payload
+            payload["id"], payload["username"], payload["role"]
         )
         refresh_token = JWTService.generate_refresh_token(
-            payload["sub"], payload["username"], payload["role"]
+            payload["id"], payload["username"], payload["role"]
         )
+
         response = RefreshResponse(
             access_token=access_token, refresh_token=refresh_token
         )
