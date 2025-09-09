@@ -64,10 +64,12 @@ def chat_inventory() -> "jsonify":
         question: str = data["question"]
         current_user = g.current_user
         user_id: str = current_user.get("id") if current_user else None
-        model: str = "openai"
+        model: str = "huggingface"
 
         session: Session = db.session
         cache = SQLAlchemyCache(session)
+
+        cache.clear_expired()
 
         cached = cache.get_cached_response(
             prompt=question, user_id=user_id, model=model

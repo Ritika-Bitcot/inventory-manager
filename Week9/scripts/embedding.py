@@ -4,9 +4,9 @@ from typing import Dict, List
 
 from dotenv import load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores.pgvector import PGVector
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
 from scripts.db_utils import get_db_url
 
 from .constant import (
@@ -31,8 +31,8 @@ def embed_and_store(products: List[Dict]) -> PGVector:
 
     try:
         db_url = get_db_url()
-        logger.info("Initializing OpenAI embeddings...")
-        embeddings = OpenAIEmbeddings(model=MODEL_NAME_EMBEDDING)
+        logger.info("Initializing Hugging Face embeddings...")
+        embeddings = HuggingFaceEmbeddings(model_name=MODEL_NAME_EMBEDDING)
 
         logger.info("Splitting product data into chunks...")
         text_splitter = RecursiveCharacterTextSplitter(
