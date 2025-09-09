@@ -112,9 +112,43 @@ inventory-manager/
 │   │   |   └── cost_calculate.py
 │   │   |   └── cost_calculate_using_langchain.py
 │   │   |   └── constant.py
-│   ├── .env
 │   ├── .env.example
-│   ├── .env/
+│   ├── .env
+│   ├── README.md
+│   └── migrations/
+├── Week9/
+│   ├── data/
+│   │   ├── products.csv
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── app.py
+│   │   ├── config.py
+│   │   ├── models.py
+│   |   ├── seed.py
+│   |   ├── db.py
+│   |   ├── decorators.py
+│   |   ├── jwt_service.py
+|   │   ├── schemas/ 
+│   │   |   ├── __init__.py
+│   |   |   ├── request.py
+│   │   |   └── response.py
+│   │   │   └── user.py
+│   │   ├── routes/
+│   │   │   ├── __init__.py
+│   │   │   └── products.py
+│   │   │   └── auth.py   
+│   │   │   └── chat.py   
+│   ├── prompts/ 
+│   │   |   ├──system_prompt.py
+│   ├── scripts/ 
+│   │   |   ├──rag_pipeline.py
+│   |   |   ├── db_utils.py
+│   │   |   └── data_loader.py
+│   │   |   └── embedding.py
+│   │   |   └── rag_chain.py
+│   │   |   └── constant.py
+│   ├── .env.example
+│   ├── .env
 │   ├── README.md
 │   └── migrations/
 ├── .pre-commit-config.yaml
