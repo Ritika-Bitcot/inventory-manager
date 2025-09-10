@@ -3,7 +3,7 @@ import logging
 
 from flask import Blueprint, Response, g, jsonify, request
 from langchain_community.vectorstores.pgvector import PGVector
-from scripts.constant import DEFAULT_CACHE_MODEL
+from scripts.constant import DEFAULT_CACHE_MODEL, DEFAULT_LLM_PROVIDER
 from scripts.data_loader import load_products
 from scripts.db_utils import SQLAlchemyCache, get_db_url, load_vector_store
 from scripts.embedding import embed_and_store
@@ -63,6 +63,8 @@ def chat_inventory() -> Response:
             return jsonify({"error": "Missing 'question'"}), 400
 
         question: str = data["question"]
+        provider: str = data.get("provider", DEFAULT_LLM_PROVIDER)
+
         current_user = g.current_user
         user_id: str = current_user.get("id") if current_user else None
         model: str = DEFAULT_CACHE_MODEL
@@ -93,8 +95,7 @@ def chat_inventory() -> Response:
         cache.save_response(
             prompt=question, response=answer, user_id=user_id, model=model
         )
-
-        return jsonify({"answer": answer, "cached": False})
+        return jsonify({"answer": answer, "cached": False, "provider": provider})
 
     except Exception as e:
         logger.exception(f"Unexpected error in /chat/inventory: {e}")
