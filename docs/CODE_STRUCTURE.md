@@ -145,6 +145,8 @@ inventory-manager/
 │   |   |   ├── db_utils.py
 │   │   |   └── data_loader.py
 │   │   |   └── embedding.py
+│   │   |   └── embedding_service.py
+│   │   |   └── llm_service.py
 │   │   |   └── rag_chain.py
 │   │   |   └── constant.py
 │   ├── .env.example
