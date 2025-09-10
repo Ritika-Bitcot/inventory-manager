@@ -1,8 +1,9 @@
 # Week9/api/routes/chat.py
 import logging
 
-from flask import Blueprint, g, jsonify, request
-from langchain_postgres import PGVector
+from flask import Blueprint, Response, g, jsonify, request
+from langchain_community.vectorstores.pgvector import PGVector
+from scripts.constant import DEFAULT_CACHE_MODEL
 from scripts.data_loader import load_products
 from scripts.db_utils import SQLAlchemyCache, get_db_url, load_vector_store
 from scripts.embedding import embed_and_store
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
 
 
-def refresh_vector_store() -> "PGVector":
+def refresh_vector_store() -> PGVector:
     """
     Refresh the vector store to include newly added products.
 
@@ -45,7 +46,7 @@ def refresh_vector_store() -> "PGVector":
 
 @chat_bp.route("/inventory", methods=["POST"])
 @jwt_required
-def chat_inventory() -> "jsonify":
+def chat_inventory() -> Response:
     """
     POST /chat/inventory
     Handles multi-tenant LLM caching and RAG-based answers.
@@ -64,10 +65,12 @@ def chat_inventory() -> "jsonify":
         question: str = data["question"]
         current_user = g.current_user
         user_id: str = current_user.get("id") if current_user else None
-        model: str = "openai"
+        model: str = DEFAULT_CACHE_MODEL
 
         session: Session = db.session
         cache = SQLAlchemyCache(session)
+
+        cache.clear_expired()
 
         cached = cache.get_cached_response(
             prompt=question, user_id=user_id, model=model

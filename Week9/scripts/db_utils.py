@@ -6,10 +6,13 @@ from typing import Optional
 from api.models import LLMCache
 from dotenv import load_dotenv
 from langchain_community.vectorstores.pgvector import PGVector
-from langchain_openai import OpenAIEmbeddings
 from sqlalchemy.orm import Session
 
-from .constant import MODEL_NAME_EMBEDDING, PGVECTOR_COLLECTION_NAME
+from .constant import (
+    DEFAULT_CACHE_MODEL,
+    PGVECTOR_COLLECTION_NAME,
+)
+from .embedding_service import EmbeddingService
 
 # Load environment variables
 load_dotenv()
@@ -52,8 +55,7 @@ def load_vector_store(collection_name: str = PGVECTOR_COLLECTION_NAME) -> PGVect
     try:
         db_url = get_db_url()
         logger.info(f"Loading vector store from collection '{collection_name}'...")
-
-        embeddings = OpenAIEmbeddings(model=MODEL_NAME_EMBEDDING)
+        embeddings = EmbeddingService.get_huggingface_embeddings()
         vector_store = PGVector(
             collection_name=collection_name,
             connection_string=db_url,
@@ -80,7 +82,10 @@ class SQLAlchemyCache:
         self.ttl_seconds = ttl_seconds
 
     def get_cached_response(
-        self, prompt: str, user_id: Optional[str] = None, model: str = "openai"
+        self,
+        prompt: str,
+        user_id: Optional[str] = None,
+        model: str = DEFAULT_CACHE_MODEL,
     ) -> Optional[LLMCache]:
         """
         Retrieve cached LLM response if available and not expired.
@@ -116,7 +121,7 @@ class SQLAlchemyCache:
         prompt: str,
         response: str,
         user_id: Optional[str] = None,
-        model: str = "openai",
+        model: str = DEFAULT_CACHE_MODEL,
     ) -> Optional[LLMCache]:
         """
         Save a new LLM response to the cache.
