@@ -25,3 +25,8 @@ PGVECTOR_COLLECTION_NAME = "product_embeddings"
 # ==========================
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
+
+# ==========================
+# Cache Defaults
+# ==========================
+DEFAULT_CACHE_MODEL = "huggingface"
