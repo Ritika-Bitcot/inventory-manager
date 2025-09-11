@@ -20,6 +20,15 @@ class LLMService:
     Adheres to OCP by allowing easy extension for new providers.
     """
 
+    _llm_providers = {
+        "openai": lambda: ChatOpenAI(
+            model=OPENAI_CHAT_MODEL, temperature=OPENAI_TEMPERATURE
+        ),
+        "ollama": lambda: ChatOllama(
+            model=OLLAMA_MODEL, temperature=OLLAMA_TEMPERATURE
+        ),
+    }
+
     @staticmethod
     def get_llm(provider: str = DEFAULT_LLM_PROVIDER):
         """
@@ -31,9 +40,11 @@ class LLMService:
         Returns:
             ChatOpenAI | ChatOllama
         """
-        if provider == "ollama":
-            logger.info("Using Ollama (Llama 3 local) as provider.")
-            return ChatOllama(model=OLLAMA_MODEL, temperature=OLLAMA_TEMPERATURE)
+        if provider not in LLMService._llm_providers:
+            logger.warning(
+                f"Unknown provider '{provider}', defaulting to {DEFAULT_LLM_PROVIDER}"
+            )
+            provider = DEFAULT_LLM_PROVIDER
 
-        logger.info("Using OpenAI as provider.")
-        return ChatOpenAI(model=OPENAI_CHAT_MODEL, temperature=OPENAI_TEMPERATURE)
+        logger.info(f"Using '{provider}' as LLM provider.")
+        return LLMService._llm_providers[provider]()
