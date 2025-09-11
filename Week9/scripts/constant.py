@@ -6,7 +6,18 @@
 MODEL_NAME = "gpt-4o-mini"
 MODEL_NAME_EMBEDDING = "sentence-transformers/all-MiniLM-L6-v2"
 OPENAI_CHAT_MODEL = "gpt-4o-mini"
-OPENAI_TEMPERATURE = 0.0
+OPENAI_TEMPERATURE = 0.7
+
+# ==========================
+# Ollama Models
+# ==========================
+OLLAMA_MODEL = "llama3"
+OLLAMA_TEMPERATURE = 0.7
+
+# ==========================
+# Providers
+# ==========================
+DEFAULT_LLM_PROVIDER = "openai"  # can be "openai" or "ollama"
 
 # ==========================
 # Pricing
@@ -30,3 +41,8 @@ CHUNK_OVERLAP = 50
 # Cache Defaults
 # ==========================
 DEFAULT_CACHE_MODEL = "huggingface"
+
+# ==========================
+# Retriever
+# ==========================
+RETRIEVER_TOP_K = 10
