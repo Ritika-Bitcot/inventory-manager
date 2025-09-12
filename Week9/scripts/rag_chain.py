@@ -1,6 +1,6 @@
 # Week8/scripts/rag_chain.py
 import logging
-from typing import Union
+from typing import Optional, Union
 
 from dotenv import load_dotenv
 from langchain.schema import StrOutputParser
@@ -20,11 +20,18 @@ logging.basicConfig(level=logging.INFO)
 
 
 def build_rag_chain(
-    vector_store: PGVector, provider: str = DEFAULT_LLM_PROVIDER
+    vector_store: PGVector,
+    user_id: Optional[str] = None,
+    provider: str = DEFAULT_LLM_PROVIDER,
 ) -> Runnable:
     """Build a Retrieval-Augmented Generation (RAG) chain."""
     try:
-        retriever = vector_store.as_retriever(search_kwargs={"k": RETRIEVER_TOP_K})
+        search_kwargs = {"k": RETRIEVER_TOP_K}
+        if user_id is not None:
+            search_kwargs["filter"] = {"user_id": str(user_id)}
+            logger.info(f"Retriever will filter by user_id={user_id}")
+
+        retriever = vector_store.as_retriever(search_kwargs=search_kwargs)
         logger.info(f"Retriever will fetch top {RETRIEVER_TOP_K} documents")
 
         prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
