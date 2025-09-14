@@ -1,6 +1,5 @@
 # Week9/api/routes/chat.py
 import logging
-from typing import Optional
 
 from flask import Blueprint, Response, g, jsonify, request
 from langchain_community.vectorstores.pgvector import PGVector
@@ -18,57 +17,28 @@ logger = logging.getLogger(__name__)
 chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
 
 
-def refresh_vector_store(user_id: Optional[str] = None) -> PGVector:
+def refresh_vector_store() -> PGVector:
     """
-    Sync vector store with DB before answering.
-    Ensures newly added products get embedded.
-    Optionally, only embed products for a specific user_id.
+    Refresh the vector store to include newly added products.
+
+    Returns:
+        PGVector: Updated vector store.
     """
     try:
         db_url = get_db_url()
         products = load_products(db_url)
         vector_store = load_vector_store()
 
-        if user_id:
-            try:
-                existing_docs = vector_store.similarity_search(
-                    "", k=1000, filter={"user_id": str(user_id)}
-                )
-            except TypeError:
-                existing_docs = vector_store.similarity_search("", k=1000)
-        else:
-            existing_docs = vector_store.similarity_search("", k=1000)
-
-        existing_ids = {
-            doc.metadata.get("product_id")
-            for doc in existing_docs
-            if doc.metadata.get("product_id")
-        }
+        existing_docs = vector_store.similarity_search("", k=1000)
+        existing_ids = {doc.metadata.get("product_id") for doc in existing_docs}
         new_products = [p for p in products if p["product_id"] not in existing_ids]
 
-        if user_id:
-            new_products = [
-                p
-                for p in products
-                if str(p.get("owner_id")) == str(user_id)
-                and p.get("product_id") not in existing_ids
-            ]
-        else:
-            new_products = [
-                p for p in products if p.get("product_id") not in existing_ids
-            ]
-
         if new_products:
-            logger.info(
-                f"Embedding {len(new_products)} new products for user_id={user_id}..."
-            )
-            vector_store = (
-                embed_and_store(new_products, user_id=user_id) or vector_store
-            )
+            logger.info(f"Embedding {len(new_products)} new products...")
+            vector_store = embed_and_store(new_products) or vector_store
         else:
             logger.info("No new products to embed.")
         return vector_store
-
     except Exception as e:
         logger.error(f"Error refreshing vector store: {e}", exc_info=True)
         raise
@@ -118,8 +88,8 @@ def chat_inventory() -> Response:
                 {"answer": cached_global.response, "cached": True, "global": True}
             )
 
-        vector_store = refresh_vector_store(user_id=user_id)
-        rag_chain = build_rag_chain(vector_store, provider=provider, user_id=user_id)
+        vector_store = refresh_vector_store()
+        rag_chain = build_rag_chain(vector_store)
         answer: str = rag_chain.invoke(question)
 
         cache.save_response(
