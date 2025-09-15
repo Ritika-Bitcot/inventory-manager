@@ -1,4 +1,3 @@
-# Week8/scripts/rag_chain.py
 import logging
 from typing import Optional, Union
 
@@ -11,7 +10,7 @@ from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_openai import ChatOpenAI
 from prompts.system_prompt import RAG_PROMPT_TEMPLATE
 
-from .constant import DEFAULT_LLM_PROVIDER, RETRIEVER_TOP_K
+from .constant import DEFAULT_LLM_PROVIDER, GLOBAL_USER_ID, RETRIEVER_TOP_K
 from .llm_service import LLMService
 
 load_dotenv()
@@ -19,38 +18,22 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def build_rag_chain(
-    vector_store: PGVector,
-    user_id: Optional[str] = None,
-    provider: str = DEFAULT_LLM_PROVIDER,
-) -> Runnable:
-    """Build a Retrieval-Augmented Generation (RAG) chain."""
-    try:
-        search_kwargs = {"k": RETRIEVER_TOP_K}
-        if user_id is not None:
-            search_kwargs["filter"] = {"user_id": str(user_id)}
-            logger.info(f"Retriever will filter by user_id={user_id}")
+def build_rag_chain(vector_store: PGVector, user_id: str, provider: str = DEFAULT_LLM_PROVIDER):
+    """Build RAG chain strictly per user."""
+    search_kwargs = {"k": RETRIEVER_TOP_K, "filter": {"user_id": str(user_id)}}
+    retriever = vector_store.as_retriever(search_kwargs=search_kwargs)
 
-        retriever = vector_store.as_retriever(search_kwargs=search_kwargs)
-        logger.info(f"Retriever will fetch top {RETRIEVER_TOP_K} documents")
+    prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
+    llm = LLMService.get_llm(provider)
 
-        prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
-
-        llm: Union[ChatOpenAI, ChatOllama] = LLMService.get_llm(provider)
-        logger.info(f"Building RAG chain with LLM provider: {provider}")
-
-        chain = (
-            {
-                "context": retriever
-                | (lambda docs: "\n\n".join([doc.page_content for doc in docs])),
-                "question": RunnablePassthrough(),
-            }
-            | prompt
-            | llm
-            | StrOutputParser()
-        )
-        return chain
-
-    except Exception as e:
-        logger.error(f"Error building RAG chain: {e}", exc_info=True)
-        raise
+    chain = (
+        {
+            "context": retriever
+            | (lambda docs: "\n\n".join([doc.page_content for doc in docs])),
+            "question": RunnablePassthrough(),
+        }
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+    return chain
