@@ -77,10 +77,12 @@ def store_document_vectors(
     Chunk a document, generate embeddings, and store in pgvector with metadata.
 
     Args:
-        user_id (str | None): The ID of the user uploading the document. If None, treated as global.
+        user_id (str | None): The ID of the user uploading the document.
+        If None, treated as global.
         document_id (int): The database ID of the document.
         content (str): The raw text content of the document.
-        embedding_instance: An already-initialized embedding object (e.g., HuggingFaceEmbeddings).
+        embedding_instance: An already-initialized embedding
+          object (e.g., HuggingFaceEmbeddings).
         collection_name (str): Name of pgvector collection.
         chunk_size (int): Max size of text chunks.
         chunk_overlap (int): Overlap between chunks.
@@ -120,7 +122,8 @@ def store_document_vectors(
         vector_store.add_texts(texts=chunks, metadatas=metadatas)
 
         logger.info(
-            f"Stored {len(chunks)} chunks for document_id={document_id},user_id={normalized_user_id}"
+            f"""Stored {len(chunks)} chunks for document_id={document_id},
+            user_id={normalized_user_id}"""
         )
     except Exception as e:
         logger.error(f"Error storing document vectors: {e}", exc_info=True)

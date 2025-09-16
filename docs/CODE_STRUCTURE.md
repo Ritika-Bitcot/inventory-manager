@@ -137,7 +137,8 @@ inventory-manager/
 │   │   │   ├── __init__.py
 │   │   │   └── products.py
 │   │   │   └── auth.py   
-│   │   │   └── chat.py   
+│   │   │   └── chat.py  
+│   │   │   └── documents.py
 │   ├── prompts/ 
 │   │   |   ├──system_prompt.py
 │   ├── scripts/ 
