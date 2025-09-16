@@ -45,4 +45,9 @@ DEFAULT_CACHE_MODEL = "huggingface"
 # ==========================
 # Retriever
 # ==========================
-RETRIEVER_TOP_K = 10
+RETRIEVER_TOP_K = 3
+
+# ==========================
+# User Defaults
+# ==========================
+GLOBAL_USER_ID = "00000000-0000-0000-0000-000000000000"

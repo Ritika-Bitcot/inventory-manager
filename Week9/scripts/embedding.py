@@ -20,54 +20,40 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def embed_and_store(products: List[Dict]) -> PGVector:
+def embed_and_store(products: List[Dict], user_id: str) -> PGVector:
     """
-    Embed new products and add them to the existing PGVector collection.
+    Embed new products and store in PGVector strictly for a user.
     """
     if not products:
         logger.warning("No products provided for embedding.")
         return
 
-    try:
-        db_url = get_db_url()
-        logger.info("Initializing Hugging Face embeddings...")
-        embeddings = EmbeddingService.get_huggingface_embeddings()
+    db_url = get_db_url()
+    embeddings = EmbeddingService.get_huggingface_embeddings()
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
+    )
 
-        logger.info("Splitting product data into chunks...")
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
-        )
+    documents: list[Document] = []
+    for product in products:
+        content = f"{product['product_name']}\n{product['description']}"
+        for chunk in text_splitter.split_text(content):
+            documents.append(
+                Document(
+                    page_content=chunk,
+                    metadata={
+                        "product_id": product["product_id"],
+                        "name": product["product_name"],
+                        "user_id": user_id,
+                    },
+                )
+            )
 
-        documents: list[Document] = []
-        for product in products:
-            try:
-                content = f"{product['product_name']}\n{product['description']}"
-                for chunk in text_splitter.split_text(content):
-                    documents.append(
-                        Document(
-                            page_content=chunk,
-                            metadata={
-                                "product_id": product["product_id"],
-                                "name": product["product_name"],
-                            },
-                        )
-                    )
-            except KeyError as e:
-                logger.error(f"Missing expected product key: {e}")
-                continue
-
-        logger.info(f"Generated {len(documents)} chunks for embedding.")
-
-        vector_store = PGVector(
-            connection_string=db_url,
-            collection_name=PGVECTOR_COLLECTION_NAME,
-            embedding_function=embeddings,
-        )
-
-        vector_store.add_documents(documents)
-        logger.info("✅ Embeddings successfully stored in PGVector.")
-
-        return vector_store
-
-    except Exception as e:
-        logger.error(f"Error in embed_and_store: {e}", exc_info=True)
+    vector_store = PGVector(
+        connection_string=db_url,
+        collection_name=PGVECTOR_COLLECTION_NAME,
+        embedding_function=embeddings,
+    )
+    vector_store.add_documents(documents)
+    logger.info(f"✅ Stored {len(documents)} chunks for user_id={user_id}")
+    return vector_store

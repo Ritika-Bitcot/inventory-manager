@@ -12,6 +12,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    func,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -207,3 +208,33 @@ class LLMCache(db.Model):
     def is_expired(self) -> bool:
         """Check if this cache entry is expired."""
         return datetime.now(timezone.utc) >= self.expires_at
+
+
+class Document(db.Model):
+    __tablename__ = "user_documents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String(255), nullable=False)
+    owner_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+    )
+    visibility = Column(
+        String(32), nullable=False, default="user"
+    )  # 'user' or 'global'
+    content_type = Column(String(64), nullable=True)
+    size = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    def serialize(self) -> dict:
+        """Return metadata about the document (not the content)."""
+        return {
+            "id": self.id,
+            "filename": self.filename,
+            "owner_id": str(self.owner_id) if self.owner_id else None,
+            "visibility": self.visibility,
+            "content_type": self.content_type,
+            "size": self.size,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
